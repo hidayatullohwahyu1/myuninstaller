@@ -1,4 +1,4 @@
-namespace MyUninstaller.Core.Leftovers;
+﻿namespace MyUninstaller.Core.Leftovers;
 
 /// <summary>
 /// Skor keyakinan 0–100 (PRD): Aman 80–100 (dicentang), Mungkin 50–79 (tidak dicentang),
@@ -16,6 +16,7 @@ public static class ConfidenceScorer
         {
             LeftoverEvidence.InstallLocation => 95,
             LeftoverEvidence.UninstallKey => 95,
+            LeftoverEvidence.RecordedAtInstall => 92,
             LeftoverEvidence.PointsIntoInstallLocation => 90,
             LeftoverEvidence.ExactNameUnderPublisher => 88,
             LeftoverEvidence.ExactName => 82,

@@ -301,7 +301,8 @@ public sealed class LeftoverUiTests : IDisposable
             .Concat(Enum.GetNames<JournalActionStatus>().Select(n => "ActionStatus_" + n))
             .Concat(Enum.GetNames<UninstallMode>().Select(n => "SessionMode_" + n))
             .Append("SessionMode_BrokenEntry")
-            .Append("SessionMode_Extension");
+            .Append("SessionMode_Extension")
+            .Append("SessionMode_Portable");
 
         expected.Except(keys).Should().BeEmpty();
     }

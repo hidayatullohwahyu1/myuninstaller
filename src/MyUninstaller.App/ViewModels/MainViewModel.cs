@@ -1,4 +1,4 @@
-using System.Collections;
+﻿using System.Collections;
 using System.IO;
 using System.Windows.Data;
 using CommunityToolkit.Mvvm.ComponentModel;
@@ -13,10 +13,13 @@ using MyUninstaller.Core.Formatting;
 using MyUninstaller.Core.Leftovers;
 using MyUninstaller.Core.Listing;
 using MyUninstaller.Core.Models;
+using MyUninstaller.Core.Monitoring;
+using MyUninstaller.Core.Portable;
 using MyUninstaller.Core.Scanning;
 using MyUninstaller.Core.Settings;
 using MyUninstaller.Core.Startup;
 using MyUninstaller.Core.Usage;
+using MyUninstaller.Core.Winget;
 
 namespace MyUninstaller.App.ViewModels;
 
@@ -37,6 +40,11 @@ public sealed partial class MainViewModel : ObservableObject
     private readonly IUsageHistory _usage;
     private readonly IBrowserExtensionReader _extensions;
     private readonly BrowserExtensionService _extensionService;
+    private readonly IPortableProgramScanner _portableScanner;
+    private readonly PortableProgramService _portableService;
+    private readonly IWingetClient _winget;
+    private readonly ISystemSnapshotter _snapshotter;
+    private readonly IInstallTraceStore _traces;
     private readonly IFolderSizeCalculator _folderSizes;
     private readonly InstallLocationRules _locationRules;
     private readonly ILogger<MainViewModel> _logger;
@@ -63,6 +71,11 @@ public sealed partial class MainViewModel : ObservableObject
         IUsageHistory usage,
         IBrowserExtensionReader extensions,
         BrowserExtensionService extensionService,
+        IPortableProgramScanner portableScanner,
+        PortableProgramService portableService,
+        IWingetClient winget,
+        ISystemSnapshotter snapshotter,
+        IInstallTraceStore traces,
         IFolderSizeCalculator folderSizes,
         InstallLocationRules locationRules,
         ILogger<MainViewModel> logger)
@@ -81,6 +94,11 @@ public sealed partial class MainViewModel : ObservableObject
         _usage = usage;
         _extensions = extensions;
         _extensionService = extensionService;
+        _portableScanner = portableScanner;
+        _portableService = portableService;
+        _winget = winget;
+        _snapshotter = snapshotter;
+        _traces = traces;
         _folderSizes = folderSizes;
         _locationRules = locationRules;
         _logger = logger;
@@ -250,11 +268,44 @@ public sealed partial class MainViewModel : ObservableObject
             {
                 IsLoading = false;
                 UpdateStatus();
+                _firstLoad.TrySetResult();
             }
         }
     }
 
     private bool CanRefresh() => !IsLoading;
+
+    /// <summary>Selesai saat pemuatan daftar pertama berakhir (berhasil atau gagal).</summary>
+    private readonly TaskCompletionSource _firstLoad = new(TaskCreationOptions.RunContinuationsAsynchronously);
+
+    /// <summary>
+    /// Menu klik kanan Explorer (versi 2.0): kenali program pemilik .exe/.lnk, lalu buka dialog hapus instalan biasa
+    /// (konfirmasi dan pilihan mode tetap di tangan pengguna). Bila tidak dikenali, beri tahu saja.
+    /// </summary>
+    public async Task UninstallFromShellAsync(string path)
+    {
+        await _firstLoad.Task;
+        while (IsLoading)
+        {
+            // Penyegaran lain sedang berjalan: tunggu daftar terbaru.
+            await Task.Delay(200);
+        }
+
+        var result = _hunter.IdentifyFile(path, AllModels());
+        if (result.Program is not { } program)
+        {
+            _logger.LogInformation("Menu klik kanan: pemilik {Path} tidak dikenali", path);
+            _dialogs.ShowInfo(Strings.Get("AppName"), Strings.Format("Shell_NotFound", Path.GetFileName(path)));
+            return;
+        }
+
+        _logger.LogInformation("Menu klik kanan: {Path} milik {Program}", path, program.DisplayName);
+        SelectProgram(program);
+        if (SelectedProgram is { } item && item.Model.Id == program.Id && _uninstall.Start([item], AllModels()))
+        {
+            await RefreshAsync();
+        }
+    }
 
     /// <summary>Memuat ikon lalu menghitung ukuran folder untuk program tanpa EstimatedSize.</summary>
     private async Task LoadDetailsAsync(IReadOnlyList<ProgramItemViewModel> items, CancellationToken cancellationToken)
@@ -498,6 +549,103 @@ public sealed partial class MainViewModel : ObservableObject
             glyph: "") == 1);
         window = new BrowserExtensionsWindow(viewModel) { Owner = owner };
         window.ShowDialog();
+    }
+
+    /// <summary>Jendela "Program portable" (versi 2.0).</summary>
+    [RelayCommand]
+    private void Portable()
+    {
+        var owner = System.Windows.Application.Current.MainWindow;
+        PortableProgramsWindow? window = null;
+        var viewModel = new PortableProgramsViewModel(_portableScanner, _portableService, _shell, AllModels,
+            confirm: program => ChoiceDialog.Show(window, Strings.Get("Portable_Remove"),
+                Strings.Format("Portable_Confirm", program.Name, program.Folder,
+                    program.SizeBytes is { } size ? IndonesianFormat.Size(size) : "?",
+                    IndonesianFormat.Count(program.Shortcuts.Count)),
+            [
+                new ChoiceButton(Strings.Get("Common_Cancel"), ChoiceKind.Primary, IsDefault: true, IsCancel: true),
+                new ChoiceButton(Strings.Get("Portable_Remove"), ChoiceKind.Danger),
+            ],
+            glyph: "") == 1,
+            pickFolder: () =>
+            {
+                var dialog = new Microsoft.Win32.OpenFolderDialog { Title = Strings.Get("Portable_ScanFolder") };
+                return dialog.ShowDialog(window) == true ? dialog.FolderName : null;
+            },
+            _clock.Today,
+            _logger);
+        window = new PortableProgramsWindow(viewModel) { Owner = owner };
+        window.ShowDialog();
+    }
+
+    /// <summary>Jendela "Pantau instalasi" (versi 2.0).</summary>
+    [RelayCommand]
+    private async Task InstallMonitorAsync()
+    {
+        var owner = System.Windows.Application.Current.MainWindow;
+        InstallMonitorWindow? window = null;
+        using var viewModel = new InstallMonitorViewModel(_snapshotter, _traces, _clock,
+            pickInstaller: () =>
+            {
+                var dialog = new Microsoft.Win32.OpenFileDialog
+                {
+                    Title = Strings.Get("Monitor_RunInstaller"),
+                    Filter = Strings.Get("Monitor_InstallerFilter"),
+                };
+                return dialog.ShowDialog(window) == true ? dialog.FileName : null;
+            },
+            launch: LaunchInstaller,
+            confirmDelete: name => ChoiceDialog.Show(window, Strings.Get("Monitor_DeleteTrace"),
+                Strings.Format("Monitor_ConfirmDeleteTrace", name),
+            [
+                new ChoiceButton(Strings.Get("Common_Cancel"), ChoiceKind.Primary, IsDefault: true, IsCancel: true),
+                new ChoiceButton(Strings.Get("Monitor_DeleteTrace"), ChoiceKind.Danger),
+            ],
+            glyph: "") == 1,
+            _logger);
+        window = new InstallMonitorWindow(viewModel) { Owner = owner };
+        window.ShowDialog();
+
+        // Program yang baru dipasang muncul di daftar.
+        await RefreshAsync();
+    }
+
+    /// <summary>Installer pilihan pengguna dibuka seperti klik ganda di Explorer (.exe/.msi).</summary>
+    private bool LaunchInstaller(string path)
+    {
+        try
+        {
+            using var process = System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo(path) { UseShellExecute = true });
+            _logger.LogInformation("Installer dijalankan saat pemantauan: {Path}", path);
+            return true;
+        }
+        catch (Exception ex) when (ex is System.ComponentModel.Win32Exception or InvalidOperationException or IOException)
+        {
+            _logger.LogWarning(ex, "Installer {Path} tidak bisa dijalankan", path);
+            return false;
+        }
+    }
+
+    /// <summary>Jendela "Pembaruan program" lewat winget (versi 2.0).</summary>
+    [RelayCommand]
+    private async Task WingetAsync()
+    {
+        var owner = System.Windows.Application.Current.MainWindow;
+        WingetWindow? window = null;
+        using var viewModel = new WingetViewModel(_winget,
+            confirm: (action, message) => ChoiceDialog.Show(window, action, message,
+            [
+                new ChoiceButton(Strings.Get("Common_Cancel"), ChoiceKind.Secondary, IsCancel: true),
+                new ChoiceButton(action, ChoiceKind.Primary, IsDefault: true),
+            ],
+            glyph: "") == 1,
+            _logger);
+        window = new WingetWindow(viewModel) { Owner = owner };
+        window.ShowDialog();
+        if (viewModel.AnyChanged)
+        {
+            await RefreshAsync();
+        }
     }
 
     [RelayCommand]

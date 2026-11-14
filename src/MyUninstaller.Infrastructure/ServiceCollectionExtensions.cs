@@ -1,4 +1,4 @@
-using Microsoft.Extensions.DependencyInjection;
+﻿using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using MyUninstaller.Core.Abstractions;
 using MyUninstaller.Core.Browsers;
@@ -11,6 +11,12 @@ using MyUninstaller.Core.Safety;
 using MyUninstaller.Infrastructure.Processes;
 using MyUninstaller.Infrastructure.Safety;
 using MyUninstaller.Infrastructure.Browsers;
+using MyUninstaller.Infrastructure.Portable;
+using MyUninstaller.Core.Portable;
+using MyUninstaller.Core.Winget;
+using MyUninstaller.Core.Monitoring;
+using MyUninstaller.Infrastructure.Monitoring;
+using MyUninstaller.Infrastructure.Winget;
 using MyUninstaller.Infrastructure.FileSystem;
 using MyUninstaller.Infrastructure.Leftovers;
 using MyUninstaller.Infrastructure.WindowsRegistry;
@@ -67,8 +73,23 @@ public static class ServiceCollectionExtensions
         services.AddSingleton<IBrowserExtensionReader, BrowserExtensionReader>();
         services.AddSingleton<IUnelevatedLauncher, DesktopShellLauncher>();
 
-        // Pemindai sisa (Tahap 5)
-        services.AddSingleton<ILeftoverScanner, LeftoverScanner>();
+        // Versi 2.0: winget dan program portable.
+        services.AddSingleton<IWingetClient, WingetClient>();
+        services.AddSingleton<IPortableProgramScanner>(sp => new PortableProgramScanner(
+            sp.GetRequiredService<IFolderSizeCalculator>(), sp.GetRequiredService<IUsageHistory>(),
+            sp.GetRequiredService<ProtectedPaths>(), sp.GetRequiredService<Microsoft.Extensions.Logging.ILogger<PortableProgramScanner>>()));
+
+        // Versi 2.0: pantau instalasi. Pemindai sisa (Tahap 5) dibungkus agar memakai jejak instalasi.
+        services.AddSingleton(sp => new SystemSnapshotter(LeftoverScanRoots.ForCurrentSystem(), sp.GetRequiredService<ProtectedPaths>(),
+            sp.GetRequiredService<Microsoft.Extensions.Logging.ILogger<SystemSnapshotter>>()));
+        services.AddSingleton<ISystemSnapshotter>(sp => sp.GetRequiredService<SystemSnapshotter>());
+        services.AddSingleton<ITraceItemProbe>(sp => sp.GetRequiredService<SystemSnapshotter>());
+        services.AddSingleton<IInstallTraceStore>(sp => new JsonInstallTraceStore(
+            Path.Combine(sp.GetRequiredService<AppPaths>().DataRoot, "Jejak"),
+            sp.GetRequiredService<Microsoft.Extensions.Logging.ILogger<JsonInstallTraceStore>>()));
+        services.AddSingleton<LeftoverScanner>();
+        services.AddSingleton<ILeftoverScanner>(sp => new TraceAwareLeftoverScanner(
+            sp.GetRequiredService<LeftoverScanner>(), sp.GetRequiredService<IInstallTraceStore>(), sp.GetRequiredService<ITraceItemProbe>()));
         services.AddSingleton<SessionRestorer>();
 
         return services;

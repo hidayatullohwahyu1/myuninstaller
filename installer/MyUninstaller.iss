@@ -1,4 +1,4 @@
-; Installer My Uninstaller! 1.0 (Inno Setup 6).
+; Installer My Uninstaller! (Inno Setup 6).
 ; Dibangun lewat build-rilis.ps1 di akar repo, yang lebih dulu menjalankan tes dan publish ke artifacts\publish.
 ; Varian framework-dependent: butuh .NET 10 Desktop Runtime x64 (diperiksa saat memasang).
 
@@ -51,12 +51,16 @@ Name: "id"; MessagesFile: "compiler:Default.isl"
 [CustomMessages]
 id.DesktopIcon=Buat pintasan di Desktop
 id.Shortcuts=Pintasan:
+id.ContextMenu=Tambahkan "Hapus instalan dengan My Uninstaller!" ke menu klik kanan berkas .exe dan pintasan
+id.ContextMenuVerb=Hapus instalan dengan My Uninstaller!
+id.Integration=Integrasi Explorer:
 id.LaunchApp=Jalankan My Uninstaller! sekarang
 id.RuntimeMissing=My Uninstaller! membutuhkan .NET 10 Desktop Runtime (x64), yang belum terpasang di komputer ini.%n%nBuka halaman unduhan Microsoft sekarang? Setelah runtime terpasang, jalankan installer ini lagi.
 id.KeepData=Hapus juga riwayat, catatan aktivitas, dan karantina My Uninstaller!?%n%n%1%n%nKarantina bisa berisi berkas yang belum dipulihkan. Pilih "No" untuk menyimpannya.
 
 [Tasks]
 Name: "desktopicon"; Description: "{cm:DesktopIcon}"; GroupDescription: "{cm:Shortcuts}"; Flags: unchecked
+Name: "contextmenu"; Description: "{cm:ContextMenu}"; GroupDescription: "{cm:Integration}"
 
 [Files]
 Source: "{#PublishDir}\{#AppExe}"; DestDir: "{app}"; Flags: ignoreversion
@@ -64,6 +68,16 @@ Source: "{#PublishDir}\{#AppExe}"; DestDir: "{app}"; Flags: ignoreversion
 [Icons]
 Name: "{autoprograms}\{#AppName}"; Filename: "{app}\{#AppExe}"
 Name: "{autodesktop}\{#AppName}"; Filename: "{app}\{#AppExe}"; Tasks: desktopicon
+
+; Menu klik kanan (versi 2.0). Hanya menambah subkunci milik aplikasi ini di bawah shell exefile/lnkfile
+; (bukan mengubah kunci yang ada); dihapus lagi saat uninstall. Di Windows 11 ada di "Tampilkan opsi lainnya".
+[Registry]
+Root: HKLM; Subkey: "Software\Classes\exefile\shell\MyUninstaller"; ValueType: string; ValueName: ""; ValueData: "{cm:ContextMenuVerb}"; Flags: uninsdeletekey; Tasks: contextmenu
+Root: HKLM; Subkey: "Software\Classes\exefile\shell\MyUninstaller"; ValueType: string; ValueName: "Icon"; ValueData: """{app}\{#AppExe}"",0"; Tasks: contextmenu
+Root: HKLM; Subkey: "Software\Classes\exefile\shell\MyUninstaller\command"; ValueType: string; ValueName: ""; ValueData: """{app}\{#AppExe}"" --hapus ""%1"""; Tasks: contextmenu
+Root: HKLM; Subkey: "Software\Classes\lnkfile\shell\MyUninstaller"; ValueType: string; ValueName: ""; ValueData: "{cm:ContextMenuVerb}"; Flags: uninsdeletekey; Tasks: contextmenu
+Root: HKLM; Subkey: "Software\Classes\lnkfile\shell\MyUninstaller"; ValueType: string; ValueName: "Icon"; ValueData: """{app}\{#AppExe}"",0"; Tasks: contextmenu
+Root: HKLM; Subkey: "Software\Classes\lnkfile\shell\MyUninstaller\command"; ValueType: string; ValueName: ""; ValueData: """{app}\{#AppExe}"" --hapus ""%1"""; Tasks: contextmenu
 
 [Run]
 Filename: "{app}\{#AppExe}"; Description: "{cm:LaunchApp}"; Flags: nowait postinstall skipifsilent

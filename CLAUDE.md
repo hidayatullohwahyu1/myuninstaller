@@ -173,7 +173,7 @@ Pengaturan tampilan per pengguna di `%LocalAppData%\MyUninstaller\pengaturan.jso
    sungguhan pada folder sementara + kunci HKCU uji).
    Pemeriksaan tampilan: render jendela di luar layar ke PNG (RenderTargetBitmap) — JANGAN tangkap layar desktop
    pengguna (bisa merekam jendela lain yang sedang dibuka).
-7. [x] Rilis 1.0 (versi 1.0.0 di `Directory.Build.props`). `build-rilis.ps1` = tes Release → publish profil
+7. [x] Rilis 1.0 (versi di `Directory.Build.props`, kini 2.0.0). `build-rilis.ps1` = tes Release → publish profil
    `Rilis` (`artifacts\publish\MyUninstaller.exe`, single-file, ReadyToRun, ±32 MB) → ISCC
    `installer\MyUninstaller.iss` (`artifacts\installer\MyUninstaller-<versi>-setup.exe`, lzma2; dilewati bila Inno
    Setup 6 belum terpasang).
@@ -186,7 +186,7 @@ Pengaturan tampilan per pengguna di `%LocalAppData%\MyUninstaller\pengaturan.jso
    Pemindaian pertama dimulai sejajar dengan pembuatan jendela (`InitialScan`).
    Belum: uji di VM Windows 10 22H2/11 24H2 (kriteria penerimaan PRD), pengecualian Windows Defender tidak
    dipasang otomatis (mengubah pengaturan keamanan — lakukan manual bila perlu).
-8. Versi 1.1–1.3 (berjalan):
+8. [x] Versi 1.1–1.3:
    - [x] 1.1 Uninstall massal: antrean/sisa gabungan sudah ada sejak Tahap 3/5; ditambah **mode senyap** (kotak di
      dialog mode, bawaan tercentang bila >1 program, menyebut "n dari m program" yang mendukung).
      `InstallerKindDetector` mengenali NSIS (`/S`) dan Inno (`/VERYSILENT ...`) dari penanda di isi exe (hanya baca,
@@ -215,3 +215,33 @@ Pengaturan tampilan per pengguna di `%LocalAppData%\MyUninstaller\pengaturan.jso
      `DesktopShellLauncher` (IShellWindows → ShellExecute milik Explorer, jadi browser jalan TANPA hak admin), pengguna
      klik Hapus di sana; bila browser tidak ditemukan, ID disalin. Firefox: ditolak bila firefox.exe berjalan, lalu .xpi
      dikarantina lewat `SafeRemover` (sesi mode "Extension", bisa dibatalkan dari Riwayat).
+9. [x] Versi 2.0 (installer `MyUninstaller-2.0.0-setup.exe`, 8,3 MB). Belum diuji manual: menu klik kanan setelah
+   dipasang, konsol winget sungguhan, dan pantau instalasi dengan installer sungguhan (lakukan di VM).
+   - **Menu klik kanan**: installer (tugas "contextmenu", bawaan aktif) menambah subkunci `MyUninstaller` di
+     `HKLM\Software\Classes\{exefile,lnkfile}\shell` → `MyUninstaller.exe --hapus "%1"` (Windows 11: "Tampilkan opsi
+     lainnya"). `ShellRequest` (Core/Shell) memvalidasi argumen (path lengkap, .exe/.lnk, tanpa karakter kendali/\\?\).
+     Bila aplikasi sudah terbuka, instance kedua mengirim path lewat `InstanceChannel` (pipe per sesi Windows, ACL hanya
+     Administrators, pesan divalidasi ulang). `MainViewModel.UninstallFromShellAsync` menunggu daftar pertama, mengenali
+     pemilik lewat `HunterProbe`, lalu membuka dialog hapus instalan biasa (tidak ada penghapusan tanpa konfirmasi).
+   - **Program portable** (`PortableProgramsWindow`): `PortableProgramScanner` menelusuri Desktop, Unduhan, Dokumen,
+     LocalAppData\Programs, dan akar drive tetap (kedalaman 3, maks 50.000 folder, tanpa junction). Aturan di
+     `PortableRules`; pelajaran dari uji baca-saja di laptop ini (jangan diulang): Python dari installer Burn hanya
+     mencatat Package Cache → kandidat yang nama/penerbitnya cocok program terpasang dibuang; folder unduhan berisi satu
+     installer (F:\...\DOWNLOAD) sempat dianggap program → folder penyimpanan (nama Download/Desktop/Compressed/...,
+     atau >3 arsip/installer/dokumen/media) tidak pernah jadi kandidat, isinya tetap ditelusuri. Proyek pengembangan
+     (.git, .sln, package.json, ...), exe Microsoft, folder milik/induk program terpasang dilewati; `bin` → folder induk.
+     Hapus = folder + pintasannya ke karantina (`PortableProgramService`, sesi "Portable"); program yang berjalan ditolak.
+   - **Pembaruan program (winget)** (`WingetWindow`): `WingetClient` membaca `winget list --source winget
+     --disable-interactivity` (batas 3 menit); `WingetRules.ParseList` memakai POSISI kolom dari baris judul (judul bisa
+     berbahasa Indonesia; dengan --source tidak ada kolom Sumber). Perbarui/Perbarui semua/Pasang ulang dijalankan di
+     jendela konsol terlihat (`cmd /c winget ... & pause`), TANPA `--accept-*-agreements`: pengguna menyetujui sendiri.
+     ID divalidasi `^[A-Za-z0-9][A-Za-z0-9.\-_+]*$` sebelum masuk baris perintah. Keluaran asli winget berisi daftar
+     program pribadi: JANGAN dijadikan berkas tes di repo.
+   - **Pantau instalasi** (`InstallMonitorWindow`): `SystemSnapshotter` mencatat NAMA benda di lokasi
+     `LeftoverScanRoots` (folder kedalaman 2, SOFTWARE kedalaman 2 tanpa Classes/Microsoft/Policies, App Paths, CLSID,
+     Uninstall, Run, layanan, tugas) ±18.000 benda, 14 detik dingin / <1 detik hangat. `InstallTraceRules.Added`
+     menyimpan hanya benda baru yang paling atas. Pengguna membatalkan centang benda yang bukan buatan installer, lalu
+     jejak disimpan sebagai JSON di `%ProgramData%\MyUninstaller\Jejak` (`JsonInstallTraceStore`, ID GUID divalidasi).
+     `TraceAwareLeftoverScanner` membungkus `LeftoverScanner` (DI): benda jejak yang masih ada → bukti
+     `RecordedAtInstall` (skor 92, Aman), KECUALI di dalam/memuat folder program lain, kunci Uninstall program lain,
+     atau bernama sama dengan penerbit/nama program lain yang masih terpasang. SafeRemover tetap mengecek daftar lindung.

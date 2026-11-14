@@ -1,4 +1,4 @@
-using MyUninstaller.Core.Safety;
+﻿using MyUninstaller.Core.Safety;
 
 namespace MyUninstaller.Core.Leftovers;
 
@@ -46,6 +46,9 @@ public enum LeftoverEvidence
 
     /// <summary>Nama mirip tetapi tidak persis.</summary>
     SimilarName,
+
+    /// <summary>Tercatat dibuat oleh installer program ini saat pemasangannya dipantau (versi 2.0).</summary>
+    RecordedAtInstall,
 }
 
 /// <summary>Kelompok tampilan (PRD "Skor keyakinan").</summary>

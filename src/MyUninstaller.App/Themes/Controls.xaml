@@ -33,6 +33,8 @@
     <sys:String x:Key="Glyph.Puzzle">&#xEA86;</sys:String>
     <sys:String x:Key="Glyph.Info">&#xE946;</sys:String>
     <sys:String x:Key="Glyph.Stop">&#xE71A;</sys:String>
+    <sys:String x:Key="Glyph.Download">&#xE896;</sys:String>
+    <sys:String x:Key="Glyph.Monitor">&#xE9D9;</sys:String>
 
     <!-- ============ Teks ============ -->
     <Style x:Key="GroupHeaderText" TargetType="TextBlock">

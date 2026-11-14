@@ -146,6 +146,8 @@
                             ToolTip="{loc:Tr Tooltip_ForceUninstall}" Command="{Binding ForceUninstallCommand}" />
                     <Button Style="{StaticResource NavButton}" Tag="{StaticResource Glyph.Target}" Content="{loc:Tr Nav_Hunter}"
                             ToolTip="{loc:Tr Tooltip_Hunter}" Command="{Binding HunterModeCommand}" />
+                    <Button Style="{StaticResource NavButton}" Tag="{StaticResource Glyph.Monitor}" Content="{loc:Tr Nav_Monitor}"
+                            ToolTip="{loc:Tr Tooltip_Monitor}" Command="{Binding InstallMonitorCommand}" />
                     <Button Style="{StaticResource NavButton}" Tag="{StaticResource Glyph.Repair}" Content="{loc:Tr Nav_AutoFix}"
                             ToolTip="{loc:Tr Tooltip_AutoFix}" Command="{Binding AutoFixCommand}" />
                     <Button Style="{StaticResource NavButton}" Tag="{StaticResource Glyph.History}" Content="{loc:Tr Nav_History}"
@@ -156,6 +158,10 @@
                             Content="{loc:Tr Nav_Startup}" ToolTip="{loc:Tr Tooltip_Startup}" Command="{Binding StartupCommand}" />
                     <Button Style="{StaticResource NavButton}" Tag="{StaticResource Glyph.Puzzle}"
                             Content="{loc:Tr Nav_Extensions}" ToolTip="{loc:Tr Tooltip_Extensions}" Command="{Binding ExtensionsCommand}" />
+                    <Button Style="{StaticResource NavButton}" Tag="{StaticResource Glyph.Package}"
+                            Content="{loc:Tr Nav_Portable}" ToolTip="{loc:Tr Tooltip_Portable}" Command="{Binding PortableCommand}" />
+                    <Button Style="{StaticResource NavButton}" Tag="{StaticResource Glyph.Download}"
+                            Content="{loc:Tr Nav_Winget}" ToolTip="{loc:Tr Tooltip_Winget}" Command="{Binding WingetCommand}" />
                     <Button x:Name="CleanerNav" Style="{StaticResource NavButton}" Tag="{StaticResource Glyph.Broom}"
                             Content="{loc:Tr Nav_Cleaner}" IsEnabled="False" />
 

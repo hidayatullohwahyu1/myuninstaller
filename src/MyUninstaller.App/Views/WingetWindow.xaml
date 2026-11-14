@@ -1,0 +1,127 @@
+<local:ThemedWindow x:Class="MyUninstaller.App.Views.WingetWindow"
+                    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+                    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+                    xmlns:local="clr-namespace:MyUninstaller.App.Views"
+                    xmlns:loc="clr-namespace:MyUninstaller.App.Localization"
+                    xmlns:vm="clr-namespace:MyUninstaller.App.ViewModels"
+                    mc:Ignorable="d"
+                    d:DataContext="{d:DesignInstance Type=vm:WingetViewModel}"
+                    Title="{loc:Tr Winget_Title}"
+                    Width="920" Height="640" MinWidth="720" MinHeight="420"
+                    ShowInTaskbar="True" WindowStartupLocation="CenterOwner">
+    <Window.Resources>
+        <BooleanToVisibilityConverter x:Key="BoolToVisibility" />
+        <Style x:Key="CollapsedWhenNull" TargetType="FrameworkElement">
+            <Style.Triggers>
+                <DataTrigger Binding="{Binding Tag, RelativeSource={RelativeSource Self}}" Value="{x:Null}">
+                    <Setter Property="Visibility" Value="Collapsed" />
+                </DataTrigger>
+            </Style.Triggers>
+        </Style>
+    </Window.Resources>
+
+    <Window.InputBindings>
+        <KeyBinding Key="F5" Command="{Binding RefreshCommand}" />
+    </Window.InputBindings>
+
+    <DockPanel Margin="20,16,20,16">
+        <Grid DockPanel.Dock="Top" Margin="0,0,0,12">
+            <StackPanel Margin="0,0,200,0">
+                <TextBlock Text="{loc:Tr Winget_Title}" FontFamily="{StaticResource UiDisplayFont}" FontSize="18" FontWeight="SemiBold" />
+                <TextBlock Text="{loc:Tr Winget_Subtitle}" Margin="0,3,0,0" TextWrapping="Wrap" Foreground="{DynamicResource TextSecondaryBrush}" />
+            </StackPanel>
+            <CheckBox Style="{StaticResource ThemedCheckBox}" Content="{loc:Tr Winget_OnlyUpdates}" IsChecked="{Binding ShowOnlyUpdates}"
+                      HorizontalAlignment="Right" VerticalAlignment="Bottom" />
+        </Grid>
+
+        <Grid DockPanel.Dock="Bottom" Margin="0,12,0,0">
+            <StackPanel VerticalAlignment="Center" HorizontalAlignment="Left" MaxWidth="300">
+                <TextBlock Text="{Binding SummaryText}" Foreground="{DynamicResource TextSecondaryBrush}" TextWrapping="Wrap" />
+                <TextBlock Text="{Binding NoticeText}" Tag="{Binding NoticeText}" Style="{StaticResource CollapsedWhenNull}"
+                           Foreground="{DynamicResource AccentTextBrush}" TextWrapping="Wrap" />
+            </StackPanel>
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center">
+                <Button Style="{StaticResource SecondaryButton}" Tag="{StaticResource Glyph.Refresh}" Content="{loc:Tr Refresh_Tooltip}"
+                        Command="{Binding RefreshCommand}" />
+                <Button Style="{StaticResource SecondaryButton}" Content="{loc:Tr Winget_Reinstall}"
+                        Command="{Binding ReinstallCommand}" Margin="8,0,0,0" />
+                <Button Style="{StaticResource SecondaryButton}" Content="{loc:Tr Winget_UpgradeAll}"
+                        Command="{Binding UpgradeAllCommand}" Margin="8,0,0,0" />
+                <Button Style="{StaticResource PrimaryButton}" Content="{loc:Tr Winget_Upgrade}"
+                        Command="{Binding UpgradeCommand}" Margin="8,0,0,0" />
+                <Button Style="{StaticResource SecondaryButton}" Content="{loc:Tr Common_Close}" IsCancel="True" Click="Close_Click"
+                        Margin="8,0,0,0" MinWidth="80" />
+            </StackPanel>
+        </Grid>
+
+        <Border CornerRadius="8" BorderThickness="1" BorderBrush="{DynamicResource BorderBrush}" Background="{DynamicResource SurfaceBrush}">
+            <Grid>
+                <ListBox ItemsSource="{Binding View}" SelectedItem="{Binding Selected}" Background="Transparent" BorderThickness="0"
+                         Padding="4" Foreground="{DynamicResource TextPrimaryBrush}" HorizontalContentAlignment="Stretch"
+                         ScrollViewer.HorizontalScrollBarVisibility="Disabled" VirtualizingPanel.IsVirtualizing="True">
+                    <ListBox.ItemContainerStyle>
+                        <Style TargetType="ListBoxItem">
+                            <Setter Property="FocusVisualStyle" Value="{StaticResource FocusRing}" />
+                            <Setter Property="Template">
+                                <Setter.Value>
+                                    <ControlTemplate TargetType="ListBoxItem">
+                                        <Border x:Name="Bd" Background="Transparent" CornerRadius="6" Padding="10,6" Margin="0,1">
+                                            <ContentPresenter />
+                                        </Border>
+                                        <ControlTemplate.Triggers>
+                                            <Trigger Property="IsMouseOver" Value="True">
+                                                <Setter TargetName="Bd" Property="Background" Value="{DynamicResource HoverBrush}" />
+                                            </Trigger>
+                                            <Trigger Property="IsSelected" Value="True">
+                                                <Setter TargetName="Bd" Property="Background" Value="{DynamicResource AccentSubtleBrush}" />
+                                            </Trigger>
+                                        </ControlTemplate.Triggers>
+                                    </ControlTemplate>
+                                </Setter.Value>
+                            </Setter>
+                        </Style>
+                    </ListBox.ItemContainerStyle>
+                    <ListBox.ItemTemplate>
+                        <DataTemplate DataType="{x:Type vm:WingetPackageItemViewModel}">
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="30" />
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="Auto" />
+                                </Grid.ColumnDefinitions>
+                                <TextBlock x:Name="Glyph" Style="{StaticResource GlyphText}" Text="{StaticResource Glyph.Package}"
+                                           Foreground="{DynamicResource TextSecondaryBrush}" />
+                                <StackPanel Grid.Column="1">
+                                    <TextBlock Text="{Binding Name}" FontWeight="SemiBold" TextTrimming="CharacterEllipsis" />
+                                    <TextBlock Text="{Binding Id}" FontSize="12" Foreground="{DynamicResource TextSecondaryBrush}" TextTrimming="CharacterEllipsis" />
+                                </StackPanel>
+                                <TextBlock x:Name="Version" Grid.Column="2" Text="{Binding VersionText}" VerticalAlignment="Center" Margin="12,0,4,0"
+                                           Foreground="{DynamicResource TextSecondaryBrush}" />
+                            </Grid>
+                            <DataTemplate.Triggers>
+                                <DataTrigger Binding="{Binding HasUpdate}" Value="True">
+                                    <Setter TargetName="Glyph" Property="Foreground" Value="{DynamicResource AccentTextBrush}" />
+                                    <Setter TargetName="Version" Property="Foreground" Value="{DynamicResource TextPrimaryBrush}" />
+                                </DataTrigger>
+                            </DataTemplate.Triggers>
+                        </DataTemplate>
+                    </ListBox.ItemTemplate>
+                </ListBox>
+                <TextBlock Text="{loc:Tr Winget_Empty}" HorizontalAlignment="Center" VerticalAlignment="Center" TextAlignment="Center"
+                           TextWrapping="Wrap" MaxWidth="460" Foreground="{DynamicResource TextSecondaryBrush}"
+                           Visibility="{Binding IsEmpty, Converter={StaticResource BoolToVisibility}}" />
+                <Border Background="{DynamicResource SurfaceBrush}" CornerRadius="8"
+                        Visibility="{Binding IsBusy, Converter={StaticResource BoolToVisibility}}">
+                    <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
+                        <ProgressBar IsIndeterminate="True" Width="220" Height="4" BorderThickness="0"
+                                     Foreground="{DynamicResource AccentBrush}" Background="{DynamicResource BorderBrush}" />
+                        <TextBlock Text="{Binding BusyText}" Margin="0,10,0,0" HorizontalAlignment="Center" TextAlignment="Center"
+                                   TextWrapping="Wrap" MaxWidth="420" Foreground="{DynamicResource TextSecondaryBrush}" />
+                    </StackPanel>
+                </Border>
+            </Grid>
+        </Border>
+    </DockPanel>
+</local:ThemedWindow>

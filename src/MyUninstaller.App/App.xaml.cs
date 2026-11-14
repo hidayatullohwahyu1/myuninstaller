@@ -10,6 +10,7 @@ using MyUninstaller.App.Localization;
 using MyUninstaller.App.Services;
 using MyUninstaller.App.ViewModels;
 using MyUninstaller.App.Views;
+using MyUninstaller.Core.Shell;
 using MyUninstaller.Infrastructure;
 using Serilog;
 
@@ -22,12 +23,20 @@ public partial class App : Application
 
     private Mutex? _singleInstanceMutex;
     private IHost? _host;
+    private InstanceChannel? _channel;
 
     protected override void OnStartup(StartupEventArgs e)
     {
         _singleInstanceMutex = new Mutex(initiallyOwned: true, SingleInstanceMutexName, out bool createdNew);
+        string? shellTarget = ShellRequest.ParseArguments(e.Args);
         if (!createdNew)
         {
+            // Menu klik kanan saat aplikasi sudah terbuka: teruskan berkasnya ke instance pertama.
+            if (shellTarget is not null)
+            {
+                InstanceChannel.Send(InstanceChannel.DefaultPipeName, shellTarget);
+            }
+
             NativeMethods.ActivateOtherInstance();
             _singleInstanceMutex.Dispose();
             _singleInstanceMutex = null;
@@ -61,6 +70,7 @@ public partial class App : Application
             var window = _host.Services.GetRequiredService<MainWindow>();
             long windowMs = startup.ElapsedMilliseconds;
             MainWindow = window;
+            var viewModel = _host.Services.GetRequiredService<MainViewModel>();
             window.Show();
 
             // Setelah jendela tampil: tawarkan pemulihan sesi terputus, lalu bersihkan karantina kedaluwarsa.
@@ -69,7 +79,25 @@ public partial class App : Application
             {
                 maintenance.OfferRecovery(window);
                 _ = maintenance.PurgeQuarantineAsync();
+                if (shellTarget is not null)
+                {
+                    _ = viewModel.UninstallFromShellAsync(shellTarget);
+                }
             });
+
+            // Permintaan menu klik kanan berikutnya datang lewat pipe dari instance kedua.
+            _channel = new InstanceChannel(InstanceChannel.DefaultPipeName, InstanceChannel.AdministratorsOnly,
+                _host.Services.GetRequiredService<Microsoft.Extensions.Logging.ILogger<InstanceChannel>>());
+            _ = _channel.ListenAsync(path => Dispatcher.BeginInvoke(() =>
+            {
+                if (window.WindowState == WindowState.Minimized)
+                {
+                    window.WindowState = WindowState.Normal;
+                }
+
+                window.Activate();
+                _ = viewModel.UninstallFromShellAsync(path);
+            }));
             Log.Information("Startup: layanan {HostMs} ms, jendela dibuat {WindowMs} ms, tampil {ShownMs} ms",
                 hostMs, windowMs, startup.ElapsedMilliseconds);
         }
@@ -86,6 +114,7 @@ public partial class App : Application
     {
         try
         {
+            _channel?.Dispose();
             if (_host is not null)
             {
                 _host.StopAsync(TimeSpan.FromSeconds(5)).GetAwaiter().GetResult();
@@ -135,6 +164,7 @@ public partial class App : Application
         builder.Services.AddSingleton<HistoryService>();
         builder.Services.AddSingleton<InitialScan>();
         builder.Services.AddSingleton<BrowserExtensionService>();
+        builder.Services.AddSingleton<PortableProgramService>();
         builder.Services.AddSingleton<MainViewModel>();
         builder.Services.AddSingleton<MainWindow>();
 

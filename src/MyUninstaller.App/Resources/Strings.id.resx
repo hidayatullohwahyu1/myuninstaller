@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <!--
   Semua teks antarmuka My Uninstaller! (bahasa Indonesia baku, KBBI dan EYD Edisi V).
   Aturan: huruf kapital hanya di awal label; judul grup panel kiri kapital semua;
@@ -180,6 +180,7 @@
   <data name="Result_Missing" xml:space="preserve"><value>Sudah tidak ada</value></data>
   <data name="Result_Failed" xml:space="preserve"><value>Gagal</value></data>
   <data name="Evidence_InstallLocation" xml:space="preserve"><value>Folder instalasi program</value></data>
+  <data name="Evidence_RecordedAtInstall" xml:space="preserve"><value>Tercatat saat pemasangan dipantau</value></data>
   <data name="Evidence_UninstallKey" xml:space="preserve"><value>Entri program yang tertinggal</value></data>
   <data name="Evidence_PointsIntoInstallLocation" xml:space="preserve"><value>Menunjuk ke folder program</value></data>
   <data name="Evidence_ExactNameUnderPublisher" xml:space="preserve"><value>Nama program di folder penerbit</value></data>
@@ -241,6 +242,7 @@
   <data name="Hunter_Found" xml:space="preserve"><value>Ditemukan: {0}</value></data>
   <data name="Hunter_NotFound" xml:space="preserve"><value>Tidak ada program terpasang yang cocok.</value></data>
   <data name="Hunter_Source" xml:space="preserve"><value>Target: {0}</value></data>
+  <data name="Shell_NotFound" xml:space="preserve"><value>Program pemilik "{0}" tidak ditemukan di daftar program terpasang. Bila ini program portable, hapus foldernya lewat menu Program portable.</value></data>
   <data name="Hunter_Select" xml:space="preserve"><value>Pilih di daftar</value></data>
 
   <!-- Riwayat -->
@@ -347,6 +349,76 @@
   <data name="Extensions_RemoveFailed" xml:space="preserve"><value>"{0}" tidak bisa dihapus: {1}</value></data>
   <data name="Extensions_SessionTitle" xml:space="preserve"><value>Ekstensi Firefox: {0}</value></data>
   <data name="SessionMode_Extension" xml:space="preserve"><value>Ekstensi browser</value></data>
+  <data name="SessionMode_Portable" xml:space="preserve"><value>Program portable</value></data>
+  <data name="Nav_Portable" xml:space="preserve"><value>Program portable</value></data>
+  <data name="Tooltip_Portable" xml:space="preserve"><value>Cari dan hapus program tanpa installer (folder yang disalin atau diekstrak)</value></data>
+  <data name="Portable_Title" xml:space="preserve"><value>Program portable</value></data>
+  <data name="Portable_Subtitle" xml:space="preserve"><value>Folder berisi program yang tidak tercatat di Windows, dicari di Desktop, Unduhan, Dokumen, dan akar setiap drive. Folder milik program terpasang, proyek pengembangan, dan komponen Microsoft tidak ditampilkan. Folder yang dihapus dipindah ke karantina dan bisa dipulihkan dari Riwayat.</value></data>
+  <data name="Portable_Scan" xml:space="preserve"><value>Pindai ulang (F5)</value></data>
+  <data name="Portable_ScanFolder" xml:space="preserve"><value>Pindai folder lain</value></data>
+  <data name="Portable_Stop" xml:space="preserve"><value>Hentikan</value></data>
+  <data name="Portable_Remove" xml:space="preserve"><value>Hapus program</value></data>
+  <data name="Portable_Scanning" xml:space="preserve"><value>Memindai folder…</value></data>
+  <data name="Portable_Stopped" xml:space="preserve"><value>Pemindaian dihentikan.</value></data>
+  <data name="Portable_ScanFailed" xml:space="preserve"><value>Pemindaian gagal. Lihat catatan aktivitas untuk rinciannya.</value></data>
+  <data name="Portable_Summary" xml:space="preserve"><value>{0} program portable, total {1}</value></data>
+  <data name="Portable_Empty" xml:space="preserve"><value>Tidak ada program portable yang ditemukan. Gunakan "Pindai folder lain" untuk folder di luar lokasi umum.</value></data>
+  <data name="Portable_LastUsed" xml:space="preserve"><value>terakhir dipakai {0}</value></data>
+  <data name="Portable_Shortcuts" xml:space="preserve"><value>{0} pintasan</value></data>
+  <data name="Portable_Running" xml:space="preserve"><value>"{0}" sedang berjalan ({1}). Tutup programnya dulu, lalu coba lagi.</value></data>
+  <data name="Portable_Confirm" xml:space="preserve"><value>Folder "{0}" akan dipindah ke karantina:
+{1}
+
+Ukuran {2}, beserta {3} pintasan yang menunjuk ke folder ini. Semua bisa dipulihkan dari Riwayat. Data program yang disimpan di luar folder ini (misalnya di AppData) tidak ikut dihapus.</value></data>
+  <data name="Portable_Removed" xml:space="preserve"><value>"{0}" dipindah ke karantina.</value></data>
+  <data name="Portable_RemoveFailed" xml:space="preserve"><value>"{0}" tidak bisa dihapus: {1}</value></data>
+  <data name="Portable_SessionTitle" xml:space="preserve"><value>Program portable: {0}</value></data>
+  <data name="Nav_Monitor" xml:space="preserve"><value>Pantau instalasi</value></data>
+  <data name="Tooltip_Monitor" xml:space="preserve"><value>Catat semua yang dibuat installer, supaya program bisa dihapus sampai bersih nanti</value></data>
+  <data name="Monitor_Title" xml:space="preserve"><value>Pantau instalasi</value></data>
+  <data name="Monitor_Subtitle" xml:space="preserve"><value>Ambil gambaran sistem sebelum memasang, pasang programnya, lalu ambil gambaran lagi. Folder, berkas, registri, layanan, dan tugas terjadwal baru disimpan sebagai jejak. Saat program itu dihapus instalannya nanti, sisa yang tercatat ditandai Aman.</value></data>
+  <data name="Monitor_StepStart" xml:space="preserve"><value>Langkah 1 dari 3: tutup program lain yang tidak perlu, lalu mulai memantau sebelum menjalankan installer.</value></data>
+  <data name="Monitor_StepInstall" xml:space="preserve"><value>Langkah 2 dari 3: pasang programnya sampai selesai (boleh lewat tombol di samping), lalu klik "Selesai memasang".</value></data>
+  <data name="Monitor_StepReview" xml:space="preserve"><value>Langkah 3 dari 3: {0} benda baru ditemukan. Hapus centang yang bukan buatan installer, periksa nama programnya, lalu simpan.</value></data>
+  <data name="Monitor_ProgramName" xml:space="preserve"><value>Nama program</value></data>
+  <data name="Monitor_Start" xml:space="preserve"><value>Mulai memantau</value></data>
+  <data name="Monitor_RunInstaller" xml:space="preserve"><value>Jalankan installer</value></data>
+  <data name="Monitor_InstallerFilter" xml:space="preserve"><value>Installer (*.exe;*.msi)|*.exe;*.msi</value></data>
+  <data name="Monitor_Finish" xml:space="preserve"><value>Selesai memasang</value></data>
+  <data name="Monitor_Save" xml:space="preserve"><value>Simpan jejak</value></data>
+  <data name="Monitor_TakingBefore" xml:space="preserve"><value>Mengambil gambaran sistem sebelum memasang… (pertama kali bisa sampai 20 detik)</value></data>
+  <data name="Monitor_TakingAfter" xml:space="preserve"><value>Mengambil gambaran sistem sesudah memasang…</value></data>
+  <data name="Monitor_InstallHint" xml:space="preserve"><value>Pemantauan berjalan. Pasang programnya, lalu kembali ke jendela ini.</value></data>
+  <data name="Monitor_NothingNew" xml:space="preserve"><value>Tidak ada benda baru. Bila installer belum selesai, klik Batal lalu ulangi pemantauan.</value></data>
+  <data name="Monitor_LaunchFailed" xml:space="preserve"><value>Installer tidak bisa dijalankan.</value></data>
+  <data name="Monitor_SnapshotFailed" xml:space="preserve"><value>Gambaran sistem gagal diambil. Lihat catatan aktivitas untuk rinciannya.</value></data>
+  <data name="Monitor_Saved" xml:space="preserve"><value>Jejak "{0}" disimpan ({1} benda).</value></data>
+  <data name="Monitor_SaveFailed" xml:space="preserve"><value>Jejak tidak bisa disimpan.</value></data>
+  <data name="Monitor_NoTraces" xml:space="preserve"><value>Belum ada jejak instalasi. Klik "Mulai memantau" sebelum memasang program baru.</value></data>
+  <data name="Monitor_TraceDetail" xml:space="preserve"><value>Dipantau {0} · {1} benda</value></data>
+  <data name="Monitor_DeleteTrace" xml:space="preserve"><value>Hapus jejak</value></data>
+  <data name="Monitor_ConfirmDeleteTrace" xml:space="preserve"><value>Hapus jejak instalasi "{0}"? Programnya tidak ikut dihapus; hanya catatannya. Sisa program ini nanti dicari dengan cara biasa.</value></data>
+  <data name="Nav_Winget" xml:space="preserve"><value>Pembaruan program</value></data>
+  <data name="Tooltip_Winget" xml:space="preserve"><value>Perbarui atau pasang ulang program lewat winget</value></data>
+  <data name="Winget_Title" xml:space="preserve"><value>Pembaruan program</value></data>
+  <data name="Winget_Subtitle" xml:space="preserve"><value>Program terpasang yang dikenal winget. Pembaruan dan pasang ulang berjalan di jendela konsol winget: kemajuan terlihat di sana, dan ketentuan atau lisensi paket disetujui sendiri di jendela itu.</value></data>
+  <data name="Winget_OnlyUpdates" xml:space="preserve"><value>Hanya yang punya pembaruan</value></data>
+  <data name="Winget_Upgrade" xml:space="preserve"><value>Perbarui</value></data>
+  <data name="Winget_UpgradeAll" xml:space="preserve"><value>Perbarui semua</value></data>
+  <data name="Winget_Reinstall" xml:space="preserve"><value>Pasang ulang</value></data>
+  <data name="Winget_Loading" xml:space="preserve"><value>Membaca daftar dari winget… (bisa beberapa detik)</value></data>
+  <data name="Winget_ConsoleOpen" xml:space="preserve"><value>winget berjalan di jendela konsol. Daftar disegarkan setelah jendela itu ditutup.</value></data>
+  <data name="Winget_Summary" xml:space="preserve"><value>{0} program dikenal winget, {1} punya pembaruan</value></data>
+  <data name="Winget_Empty" xml:space="preserve"><value>Tidak ada yang perlu diperbarui.</value></data>
+  <data name="Winget_VersionCurrent" xml:space="preserve"><value>{0}</value></data>
+  <data name="Winget_VersionUpdate" xml:space="preserve"><value>{0} → {1}</value></data>
+  <data name="Winget_Missing" xml:space="preserve"><value>winget tidak ditemukan. Pasang "App Installer" dari Microsoft Store, lalu buka jendela ini lagi.</value></data>
+  <data name="Winget_ListFailed" xml:space="preserve"><value>winget gagal membaca daftar: {0}. Bila winget meminta persetujuan ketentuan sumber, jalankan "winget list" sekali di Terminal.</value></data>
+  <data name="Winget_ConsoleFailed" xml:space="preserve"><value>Jendela konsol winget tidak bisa dibuka.</value></data>
+  <data name="Winget_Done" xml:space="preserve"><value>winget selesai. Daftar sudah disegarkan.</value></data>
+  <data name="Winget_DoneWithCode" xml:space="preserve"><value>winget selesai dengan kode {0}. Lihat pesan di jendela konsol tadi.</value></data>
+  <data name="Winget_ConfirmUpgradeAll" xml:space="preserve"><value>Perbarui {0} program sekaligus lewat winget? Sebagian installer bisa meminta izin Administrator atau menutup programnya selama pembaruan.</value></data>
+  <data name="Winget_ConfirmReinstall" xml:space="preserve"><value>Pasang ulang "{0}" ({1})? winget mengunduh versi terbaru lalu memasangnya di atas instalasi yang ada. Pengaturan program biasanya tetap.</value></data>
 
   <!-- Keterangan aksi di jurnal (tampil di Riwayat) -->
   <data name="RestorePointResult_Created" xml:space="preserve"><value>Dibuat</value></data>
