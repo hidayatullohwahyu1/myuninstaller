@@ -1,0 +1,169 @@
+<local:ThemedWindow x:Class="MyUninstaller.App.Views.UninstallProgressWindow"
+                    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+                    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+                    xmlns:local="clr-namespace:MyUninstaller.App.Views"
+                    xmlns:loc="clr-namespace:MyUninstaller.App.Localization"
+                    xmlns:vm="clr-namespace:MyUninstaller.App.ViewModels"
+                    mc:Ignorable="d"
+                    d:DataContext="{d:DesignInstance Type=vm:UninstallSessionViewModel}"
+                    Title="{loc:Tr Progress_Title}"
+                    Width="560" SizeToContent="Height" ResizeMode="NoResize"
+                    ShowInTaskbar="True" WindowStartupLocation="CenterOwner">
+    <Window.Resources>
+        <BooleanToVisibilityConverter x:Key="BoolToVisibility" />
+
+        <Style x:Key="CollapsedWhenNull" TargetType="FrameworkElement">
+            <Style.Triggers>
+                <DataTrigger Binding="{Binding Tag, RelativeSource={RelativeSource Self}}" Value="{x:Null}">
+                    <Setter Property="Visibility" Value="Collapsed" />
+                </DataTrigger>
+            </Style.Triggers>
+        </Style>
+    </Window.Resources>
+
+    <DockPanel Margin="24,20,24,20">
+        <!-- Tombol -->
+        <Grid DockPanel.Dock="Bottom" Margin="0,18,0,0">
+            <TextBlock Text="{Binding ElapsedText}" VerticalAlignment="Center" Foreground="{DynamicResource TextSecondaryBrush}"
+                       Visibility="{Binding IsRunning, Converter={StaticResource BoolToVisibility}}" />
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                <Button Style="{StaticResource SecondaryButton}" Tag="{StaticResource Glyph.Stop}" Content="{loc:Tr Progress_Stop}"
+                        Command="{Binding StopCommand}" MinWidth="100"
+                        Visibility="{Binding IsRunning, Converter={StaticResource BoolToVisibility}}" />
+                <!-- Tanpa sisa untuk ditinjau: Tutup = tombol Enter. -->
+                <Button Style="{StaticResource PrimaryButton}" Content="{loc:Tr Common_Close}" Command="{Binding CloseCommand}"
+                        IsDefault="True" MinWidth="100"
+                        Visibility="{Binding ShowPlainClose, Converter={StaticResource BoolToVisibility}}" />
+                <!-- Ada sisa: "Tinjau sisa instalan" = tombol Enter (PRD: pilih → Uninstall → Hapus sisa). -->
+                <Button Style="{StaticResource SecondaryButton}" Content="{loc:Tr Common_Close}" Command="{Binding CloseCommand}"
+                        MinWidth="100"
+                        Visibility="{Binding HasLeftoversToReview, Converter={StaticResource BoolToVisibility}}" />
+                <Button Style="{StaticResource PrimaryButton}" Content="{Binding ReviewText}" Command="{Binding ReviewCommand}"
+                        IsDefault="True" Margin="8,0,0,0"
+                        Visibility="{Binding HasLeftoversToReview, Converter={StaticResource BoolToVisibility}}" />
+            </StackPanel>
+        </Grid>
+
+        <StackPanel>
+            <!-- Program yang sedang diproses -->
+            <Grid Visibility="{Binding IsRunning, Converter={StaticResource BoolToVisibility}}">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="*" />
+                </Grid.ColumnDefinitions>
+                <Border Width="48" Height="48" CornerRadius="10" Background="{Binding Current.Program.TileBrush}" Margin="0,0,14,0">
+                    <Grid>
+                        <TextBlock Text="{Binding Current.Program.Initial}" Foreground="White" FontSize="22" FontWeight="SemiBold"
+                                   HorizontalAlignment="Center" VerticalAlignment="Center" />
+                        <Image Source="{Binding Current.Icon}" RenderOptions.BitmapScalingMode="HighQuality" />
+                    </Grid>
+                </Border>
+                <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                    <TextBlock Text="{Binding Current.Name}" FontFamily="{StaticResource UiDisplayFont}" FontSize="18"
+                               FontWeight="SemiBold" TextTrimming="CharacterEllipsis" />
+                    <TextBlock Text="{Binding CounterText}" Foreground="{DynamicResource TextSecondaryBrush}" Margin="0,2,0,0"
+                               Visibility="{Binding IsMultiple, Converter={StaticResource BoolToVisibility}}" />
+                </StackPanel>
+            </Grid>
+
+            <!-- Langkah tingkat sesi (titik pemulihan) -->
+            <TextBlock Text="{Binding SessionStepText}" Tag="{Binding SessionStepText}" Style="{StaticResource CollapsedWhenNull}"
+                       Margin="0,14,0,0" FontWeight="SemiBold" Foreground="{DynamicResource AccentTextBrush}" />
+
+            <!-- Langkah -->
+            <ItemsControl ItemsSource="{Binding Steps}" Margin="0,16,0,0"
+                          Visibility="{Binding IsRunning, Converter={StaticResource BoolToVisibility}}">
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate DataType="{x:Type vm:SessionStepViewModel}">
+                        <StackPanel Orientation="Horizontal" Margin="0,3">
+                            <Grid Width="22">
+                                <TextBlock x:Name="Glyph" Style="{StaticResource GlyphText}" FontSize="13" Text="&#xEA3A;"
+                                           Foreground="{DynamicResource TextDisabledBrush}" />
+                            </Grid>
+                            <TextBlock x:Name="Label" Text="{Binding Label}" Foreground="{DynamicResource TextSecondaryBrush}" />
+                        </StackPanel>
+                        <DataTemplate.Triggers>
+                            <DataTrigger Binding="{Binding State}" Value="Active">
+                                <Setter TargetName="Glyph" Property="Text" Value="&#xE768;" />
+                                <Setter TargetName="Glyph" Property="Foreground" Value="{DynamicResource AccentTextBrush}" />
+                                <Setter TargetName="Label" Property="Foreground" Value="{DynamicResource TextPrimaryBrush}" />
+                                <Setter TargetName="Label" Property="FontWeight" Value="SemiBold" />
+                            </DataTrigger>
+                            <DataTrigger Binding="{Binding State}" Value="Done">
+                                <Setter TargetName="Glyph" Property="Text" Value="&#xE73E;" />
+                                <Setter TargetName="Glyph" Property="Foreground" Value="{DynamicResource BadgeNewBrush}" />
+                                <Setter TargetName="Label" Property="Foreground" Value="{DynamicResource TextPrimaryBrush}" />
+                            </DataTrigger>
+                            <DataTrigger Binding="{Binding State}" Value="Skipped">
+                                <Setter TargetName="Glyph" Property="Text" Value="&#xE738;" />
+                                <Setter TargetName="Label" Property="Foreground" Value="{DynamicResource TextDisabledBrush}" />
+                            </DataTrigger>
+                        </DataTemplate.Triggers>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+
+            <!-- Petunjuk bila uninstaller lama menunggu -->
+            <Border Margin="0,12,0,0" Padding="12,8" CornerRadius="6" Background="{DynamicResource SurfaceAltBrush}"
+                    BorderBrush="{DynamicResource BadgeRareBrush}" BorderThickness="1"
+                    Visibility="{Binding ShowWaitingHint, Converter={StaticResource BoolToVisibility}}">
+                <TextBlock Text="{loc:Tr Progress_WaitingForInput}" TextWrapping="Wrap" />
+            </Border>
+
+            <!-- Hasil akhir -->
+            <StackPanel Visibility="{Binding IsFinished, Converter={StaticResource BoolToVisibility}}">
+                <TextBlock Text="{loc:Tr Progress_Done}" FontFamily="{StaticResource UiDisplayFont}" FontSize="18" FontWeight="SemiBold" />
+                <TextBlock Text="{Binding SummaryText}" Foreground="{DynamicResource TextSecondaryBrush}" Margin="0,2,0,12" />
+            </StackPanel>
+
+            <!-- Daftar program dan statusnya -->
+            <Border CornerRadius="8" Background="{DynamicResource SurfaceBrush}" BorderBrush="{DynamicResource BorderBrush}"
+                    BorderThickness="1" Margin="0,14,0,0" Padding="4">
+                <ScrollViewer MaxHeight="240" VerticalScrollBarVisibility="Auto">
+                    <ItemsControl ItemsSource="{Binding Items}">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate DataType="{x:Type vm:SessionItemViewModel}">
+                                <Grid Margin="8,6">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="26" />
+                                        <ColumnDefinition Width="*" />
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock x:Name="Glyph" Style="{StaticResource GlyphText}" FontSize="14" VerticalAlignment="Top"
+                                               Margin="0,1,0,0" Text="&#xEA3A;" Foreground="{DynamicResource TextDisabledBrush}" />
+                                    <StackPanel Grid.Column="1">
+                                        <TextBlock Text="{Binding Name}" FontWeight="SemiBold" TextTrimming="CharacterEllipsis" />
+                                        <TextBlock Text="{Binding StatusText}" Foreground="{DynamicResource TextSecondaryBrush}"
+                                                   TextWrapping="Wrap" Tag="{Binding StatusText}" />
+                                    </StackPanel>
+                                </Grid>
+                                <DataTemplate.Triggers>
+                                    <DataTrigger Binding="{Binding IsCurrent}" Value="True">
+                                        <Setter TargetName="Glyph" Property="Text" Value="&#xE768;" />
+                                        <Setter TargetName="Glyph" Property="Foreground" Value="{DynamicResource AccentTextBrush}" />
+                                    </DataTrigger>
+                                    <DataTrigger Binding="{Binding IsSuccess}" Value="True">
+                                        <Setter TargetName="Glyph" Property="Text" Value="&#xE73E;" />
+                                        <Setter TargetName="Glyph" Property="Foreground" Value="{DynamicResource BadgeNewBrush}" />
+                                    </DataTrigger>
+                                    <DataTrigger Binding="{Binding IsWarning}" Value="True">
+                                        <Setter TargetName="Glyph" Property="Text" Value="&#xE7BA;" />
+                                        <Setter TargetName="Glyph" Property="Foreground" Value="{DynamicResource BadgeRareBrush}" />
+                                    </DataTrigger>
+                                    <DataTrigger Binding="{Binding IsError}" Value="True">
+                                        <Setter TargetName="Glyph" Property="Text" Value="&#xEA39;" />
+                                        <Setter TargetName="Glyph" Property="Foreground" Value="{DynamicResource DangerBrush}" />
+                                    </DataTrigger>
+                                </DataTemplate.Triggers>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </ScrollViewer>
+            </Border>
+
+            <TextBlock Text="{Binding NoteText}" Tag="{Binding NoteText}" Style="{StaticResource CollapsedWhenNull}"
+                       TextWrapping="Wrap" Margin="0,12,0,0" Foreground="{DynamicResource TextSecondaryBrush}" />
+        </StackPanel>
+    </DockPanel>
+</local:ThemedWindow>

@@ -1,0 +1,316 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Semua teks antarmuka My Uninstaller! (bahasa Indonesia baku, KBBI dan EYD Edisi V).
+  Aturan: huruf kapital hanya di awal label; judul grup panel kiri kapital semua;
+  desimal koma, ribuan titik; tanggal "2 September 2026"; jam "14.30".
+  Jangan menulis teks antarmuka langsung di kode atau XAML; tambahkan kunci di sini.
+-->
+<root>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+
+  <!-- Umum -->
+  <data name="AppName" xml:space="preserve"><value>My Uninstaller!</value></data>
+  <data name="Common_Ok" xml:space="preserve"><value>OK</value></data>
+
+  <!-- Kepala jendela -->
+  <data name="Search_Placeholder" xml:space="preserve"><value>Cari program...</value></data>
+  <data name="Search_ClearTooltip" xml:space="preserve"><value>Hapus teks pencarian (Esc)</value></data>
+  <data name="Refresh_Tooltip" xml:space="preserve"><value>Segarkan (F5)</value></data>
+
+  <!-- Panel kiri -->
+  <data name="Group_Program" xml:space="preserve"><value>PROGRAM</value></data>
+  <data name="Nav_Uninstall" xml:space="preserve"><value>Hapus instalan</value></data>
+  <data name="Nav_ForceUninstall" xml:space="preserve"><value>Hapus paksa</value></data>
+  <data name="Nav_Hunter" xml:space="preserve"><value>Mode Pemburu</value></data>
+  <data name="Nav_AutoFix" xml:space="preserve"><value>Perbaikan otomatis</value></data>
+  <data name="Nav_History" xml:space="preserve"><value>Riwayat</value></data>
+  <data name="Group_Tools" xml:space="preserve"><value>ALAT</value></data>
+  <data name="Nav_Startup" xml:space="preserve"><value>Program awal</value></data>
+  <data name="Nav_Cleaner" xml:space="preserve"><value>Pembersih</value></data>
+  <data name="Group_View" xml:space="preserve"><value>TAMPILAN</value></data>
+  <data name="View_Icons" xml:space="preserve"><value>Ikon besar</value></data>
+  <data name="View_Details" xml:space="preserve"><value>Rincian</value></data>
+  <data name="Sort_Label" xml:space="preserve"><value>Urutkan</value></data>
+  <data name="Sort_Name" xml:space="preserve"><value>Nama</value></data>
+  <data name="Sort_Publisher" xml:space="preserve"><value>Penerbit</value></data>
+  <data name="Sort_Size" xml:space="preserve"><value>Ukuran</value></data>
+  <data name="Sort_InstallDate" xml:space="preserve"><value>Tanggal pasang</value></data>
+  <data name="View_ShowSystem" xml:space="preserve"><value>Komponen sistem</value></data>
+  <data name="Tooltip_ShowSystem" xml:space="preserve"><value>Tampilkan juga komponen sistem, pembaruan Windows, dan entri tanpa penghapus instalan</value></data>
+  <data name="Sort_Descending" xml:space="preserve"><value>Urutan menurun</value></data>
+  <data name="Tooltip_Uninstall" xml:space="preserve"><value>Hapus instalan program yang dipilih (Del)</value></data>
+  <data name="Tooltip_ForceUninstall" xml:space="preserve"><value>Hapus program yang penghapus instalannya rusak atau hilang</value></data>
+  <data name="Tooltip_Hunter" xml:space="preserve"><value>Seret ikon target ke jendela, pintasan, atau ikon baki (Ctrl+H)</value></data>
+  <data name="Tooltip_AutoFix" xml:space="preserve"><value>Perbaiki entri program yang rusak</value></data>
+  <data name="Tooltip_History" xml:space="preserve"><value>Lihat riwayat dan pulihkan dari karantina</value></data>
+  <data name="Tooltip_AvailableInVersion" xml:space="preserve"><value>Tersedia di versi {0}</value></data>
+
+  <!-- Kolom tampilan rincian -->
+  <data name="Column_Name" xml:space="preserve"><value>Nama</value></data>
+  <data name="Column_Publisher" xml:space="preserve"><value>Penerbit</value></data>
+  <data name="Column_Version" xml:space="preserve"><value>Versi</value></data>
+  <data name="Column_Size" xml:space="preserve"><value>Ukuran</value></data>
+  <data name="Column_InstallDate" xml:space="preserve"><value>Tanggal pasang</value></data>
+
+  <!-- Label kecil -->
+  <data name="Badge_New" xml:space="preserve"><value>BARU</value></data>
+  <data name="Badge_New_Tooltip" xml:space="preserve"><value>Dipasang dalam 7 hari terakhir</value></data>
+  <data name="Badge_Rare" xml:space="preserve"><value>JARANG</value></data>
+  <data name="Badge_Rare_Tooltip" xml:space="preserve"><value>Tidak dipakai 90 hari atau lebih</value></data>
+
+  <!-- Panel info bawah -->
+  <data name="Info_NoSelection" xml:space="preserve"><value>Pilih program untuk melihat rinciannya.</value></data>
+  <data name="Info_MultipleSelected" xml:space="preserve"><value>{0} program dipilih · total {1}</value></data>
+  <data name="Info_Installed" xml:space="preserve"><value>dipasang {0}</value></data>
+  <data name="Info_UnknownSize" xml:space="preserve"><value>ukuran tidak diketahui</value></data>
+  <data name="Info_UnknownPublisher" xml:space="preserve"><value>Penerbit tidak diketahui</value></data>
+  <data name="Info_UnknownLocation" xml:space="preserve"><value>Lokasi tidak diketahui</value></data>
+  <data name="Info_Website" xml:space="preserve"><value>Situs penerbit</value></data>
+  <data name="Info_OpenFolder" xml:space="preserve"><value>Buka lokasi folder</value></data>
+  <data name="Source_Registry64" xml:space="preserve"><value>Program 64-bit</value></data>
+  <data name="Source_Registry32" xml:space="preserve"><value>Program 32-bit</value></data>
+  <data name="Source_CurrentUser" xml:space="preserve"><value>Khusus pengguna ini</value></data>
+  <data name="Source_Store" xml:space="preserve"><value>Aplikasi Microsoft Store</value></data>
+  <data name="Source_Msi" xml:space="preserve"><value>Windows Installer</value></data>
+  <data name="Source_SystemComponent" xml:space="preserve"><value>komponen sistem</value></data>
+  <data name="Button_Uninstall" xml:space="preserve"><value>Hapus instalan</value></data>
+
+  <!-- Menu klik kanan -->
+  <data name="Menu_Uninstall" xml:space="preserve"><value>Hapus instalan</value></data>
+  <data name="Menu_ForceUninstall" xml:space="preserve"><value>Hapus paksa</value></data>
+  <data name="Menu_OpenFolder" xml:space="preserve"><value>Buka lokasi folder</value></data>
+  <data name="Menu_OpenRegistry" xml:space="preserve"><value>Buka di Editor Registri</value></data>
+  <data name="Menu_SearchGoogle" xml:space="preserve"><value>Cari di Google</value></data>
+  <data name="Menu_CopyName" xml:space="preserve"><value>Salin nama</value></data>
+  <data name="Menu_RemoveBrokenEntry" xml:space="preserve"><value>Hapus entri rusak</value></data>
+
+  <!-- Bilah status -->
+  <data name="Status_Summary" xml:space="preserve"><value>{0} program · total {1} · {2} dipilih</value></data>
+  <data name="Status_Filtered" xml:space="preserve"><value>{0} dari {1} program · total {2} · {3} dipilih</value></data>
+  <data name="Status_Loading" xml:space="preserve"><value>Memuat daftar program...</value></data>
+  <data name="Status_LoadingStore" xml:space="preserve"><value>Memuat aplikasi Microsoft Store...</value></data>
+  <data name="Status_ComputingSizes" xml:space="preserve"><value>Menghitung ukuran {0} folder...</value></data>
+  <data name="Status_NoResults" xml:space="preserve"><value>Tidak ada program yang cocok dengan "{0}".</value></data>
+  <data name="Status_NameCopied" xml:space="preserve"><value>Nama program disalin.</value></data>
+  <data name="Status_LoadFailed" xml:space="preserve"><value>Daftar program gagal dimuat. Rincian ada di catatan aktivitas.</value></data>
+
+  <!-- Dialog umum -->
+  <data name="Common_Continue" xml:space="preserve"><value>Lanjutkan</value></data>
+  <data name="Common_Cancel" xml:space="preserve"><value>Batal</value></data>
+  <data name="Common_Close" xml:space="preserve"><value>Tutup</value></data>
+
+  <!-- Dialog mode hapus instalan -->
+  <data name="Mode_Title" xml:space="preserve"><value>Pilih mode hapus instalan</value></data>
+  <data name="Mode_HeaderSingle" xml:space="preserve"><value>Hapus instalan {0}</value></data>
+  <data name="Mode_HeaderMany" xml:space="preserve"><value>Hapus instalan {0} program</value></data>
+  <data name="Mode_HeaderHint" xml:space="preserve"><value>Pilihan terakhir diingat, jadi cukup tekan Enter.</value></data>
+  <data name="Mode_Builtin" xml:space="preserve"><value>Bawaan</value></data>
+  <data name="Mode_Builtin_Desc" xml:space="preserve"><value>Hanya menjalankan penghapus instalan program. Untuk program tepercaya dan ingin cepat.</value></data>
+  <data name="Mode_Safe" xml:space="preserve"><value>Aman</value></data>
+  <data name="Mode_Safe_Desc" xml:space="preserve"><value>Bawaan, lalu sisa berlabel Aman dibersihkan otomatis. Untuk pemakaian harian.</value></data>
+  <data name="Mode_Normal" xml:space="preserve"><value>Normal</value></data>
+  <data name="Mode_Normal_Desc" xml:space="preserve"><value>Bawaan, lalu sisa Aman dan Mungkin ditampilkan untuk dicentang. Pilihan seimbang.</value></data>
+  <data name="Mode_Super" xml:space="preserve"><value>Super</value></data>
+  <data name="Mode_Super_Desc" xml:space="preserve"><value>Normal ditambah pemindaian mendalam: CLSID, layanan, tugas terjadwal, firewall, dan pencarian nama di seluruh drive.</value></data>
+  <data name="Mode_Force" xml:space="preserve"><value>Hapus paksa</value></data>
+  <data name="Mode_Force_Desc" xml:space="preserve"><value>Lewati penghapus instalan program, langsung hapus berkas dan registri. Untuk penghapus instalan yang rusak atau hilang.</value></data>
+  <data name="Mode_RecommendedTag" xml:space="preserve"><value>disarankan</value></data>
+
+  <!-- Jendela proses hapus instalan -->
+  <data name="Progress_Title" xml:space="preserve"><value>Hapus instalan</value></data>
+  <data name="Progress_Counter" xml:space="preserve"><value>Program {0} dari {1}</value></data>
+  <data name="Progress_StepCheck" xml:space="preserve"><value>Pemeriksaan awal</value></data>
+  <data name="Progress_StepRun" xml:space="preserve"><value>Menjalankan penghapus instalan</value></data>
+  <data name="Progress_StepVerify" xml:space="preserve"><value>Verifikasi</value></data>
+  <data name="Progress_StepLeftovers" xml:space="preserve"><value>Pindai sisa instalan</value></data>
+  <data name="Progress_Elapsed" xml:space="preserve"><value>Berjalan {0}</value></data>
+  <data name="Progress_WaitingForInput" xml:space="preserve"><value>Penghapus instalan sudah berjalan lebih dari 2 menit dan mungkin menunggu jawaban. Periksa jendelanya (bisa tertutup jendela lain).</value></data>
+  <data name="Progress_Stop" xml:space="preserve"><value>Hentikan</value></data>
+  <data name="Progress_StopConfirm" xml:space="preserve"><value>Hentikan penghapus instalan yang sedang berjalan? Program bisa tertinggal setengah terhapus.</value></data>
+  <data name="Progress_Done" xml:space="preserve"><value>Selesai</value></data>
+  <data name="Progress_LeftoversFound" xml:space="preserve"><value>{0} sisa instalan ditemukan</value></data>
+  <data name="Progress_LeftoversNone" xml:space="preserve"><value>tidak ada sisa instalan</value></data>
+  <data name="Progress_LeftoversAutoCleaned" xml:space="preserve"><value>{0} sisa berlabel Aman dibersihkan otomatis</value></data>
+  <data name="Progress_ReviewLeftovers" xml:space="preserve"><value>Tinjau sisa instalan ({0})</value></data>
+
+  <!-- Layar hasil sisa instalan -->
+  <data name="Leftovers_Title" xml:space="preserve"><value>Sisa instalan</value></data>
+  <data name="Leftovers_Header" xml:space="preserve"><value>{0} sisa instalan ditemukan</value></data>
+  <data name="Leftovers_Subheader" xml:space="preserve"><value>Yang berlabel Aman sudah dicentang. Semua yang dihapus masuk karantina dan bisa dipulihkan.</value></data>
+  <data name="Leftovers_Checked" xml:space="preserve"><value>{0} dicentang · {1}</value></data>
+  <data name="Leftovers_ShowDoubtful" xml:space="preserve"><value>Tampilkan yang ragu ({0})</value></data>
+  <data name="Leftovers_SelectSafe" xml:space="preserve"><value>Centang yang aman</value></data>
+  <data name="Leftovers_SelectNone" xml:space="preserve"><value>Hapus centang</value></data>
+  <data name="Leftovers_Remove" xml:space="preserve"><value>Hapus yang dicentang</value></data>
+  <data name="Leftovers_Skip" xml:space="preserve"><value>Lewati</value></data>
+  <data name="Leftovers_Working" xml:space="preserve"><value>Memindahkan ke karantina...</value></data>
+  <data name="Leftovers_Done" xml:space="preserve"><value>Program berhasil dihapus. {0} sisa dibersihkan.</value></data>
+  <data name="Leftovers_DoneDetail" xml:space="preserve"><value>{0} berkas/folder · {1} entri registri · {2} layanan/tugas · {3} dibebaskan</value></data>
+  <data name="Leftovers_DoneFailures" xml:space="preserve"><value>{0} item gagal atau dilindungi; rinciannya ada di daftar.</value></data>
+  <data name="Leftovers_Undo" xml:space="preserve"><value>Batalkan</value></data>
+  <data name="Leftovers_UndoConfirm" xml:space="preserve"><value>Kembalikan semua berkas dan entri registri dari sesi ini? Program yang sudah dihapus penghapus instalannya tidak ikut terpasang kembali.</value></data>
+  <data name="Leftovers_Undone" xml:space="preserve"><value>{0} berkas/folder dan {1} entri dipulihkan.</value></data>
+  <data name="Leftovers_ConfirmRiskyTitle" xml:space="preserve"><value>Konfirmasi kedua</value></data>
+  <data name="Leftovers_ConfirmRisky" xml:space="preserve"><value>{0} item yang dicentang tidak berlabel Aman. Item ini mungkin dipakai program lain atau berisi data pribadi. Tetap pindahkan ke karantina?</value></data>
+  <data name="Leftovers_ConfirmRiskyYes" xml:space="preserve"><value>Ya, hapus</value></data>
+  <data name="LeftoverGroup_Safe" xml:space="preserve"><value>Aman</value></data>
+  <data name="LeftoverGroup_Maybe" xml:space="preserve"><value>Mungkin</value></data>
+  <data name="LeftoverGroup_Doubtful" xml:space="preserve"><value>Ragu</value></data>
+  <data name="Kind_Folder" xml:space="preserve"><value>Folder</value></data>
+  <data name="Kind_File" xml:space="preserve"><value>Berkas</value></data>
+  <data name="Kind_Shortcut" xml:space="preserve"><value>Pintasan</value></data>
+  <data name="Kind_RegistryKey" xml:space="preserve"><value>Kunci registri</value></data>
+  <data name="Kind_RegistryValue" xml:space="preserve"><value>Nilai registri</value></data>
+  <data name="Kind_Service" xml:space="preserve"><value>Layanan</value></data>
+  <data name="Kind_ScheduledTask" xml:space="preserve"><value>Tugas terjadwal</value></data>
+  <data name="Result_Removed" xml:space="preserve"><value>Dipindahkan ke karantina</value></data>
+  <data name="Result_PendingReboot" xml:space="preserve"><value>Dihapus saat mulai ulang</value></data>
+  <data name="Result_Protected" xml:space="preserve"><value>Dilindungi, tidak dihapus</value></data>
+  <data name="Result_Missing" xml:space="preserve"><value>Sudah tidak ada</value></data>
+  <data name="Result_Failed" xml:space="preserve"><value>Gagal</value></data>
+  <data name="Evidence_InstallLocation" xml:space="preserve"><value>Folder instalasi program</value></data>
+  <data name="Evidence_UninstallKey" xml:space="preserve"><value>Entri program yang tertinggal</value></data>
+  <data name="Evidence_PointsIntoInstallLocation" xml:space="preserve"><value>Menunjuk ke folder program</value></data>
+  <data name="Evidence_ExactNameUnderPublisher" xml:space="preserve"><value>Nama program di folder penerbit</value></data>
+  <data name="Evidence_ExactName" xml:space="preserve"><value>Nama sama dengan program</value></data>
+  <data name="Evidence_PublisherOnly" xml:space="preserve"><value>Hanya nama penerbit</value></data>
+  <data name="Evidence_ExactNameElsewhere" xml:space="preserve"><value>Nama sama, lokasi tidak biasa</value></data>
+  <data name="Evidence_UserData" xml:space="preserve"><value>Mungkin berisi data pribadi</value></data>
+  <data name="Evidence_SimilarName" xml:space="preserve"><value>Nama mirip</value></data>
+  <data name="Progress_RestartNeeded" xml:space="preserve"><value>Mulai ulang komputer diperlukan untuk menyelesaikan penghapusan.</value></data>
+  <data name="Progress_Summary" xml:space="preserve"><value>{0} berhasil · {1} sebagian · {2} gagal</value></data>
+  <data name="Outcome_Success" xml:space="preserve"><value>Berhasil</value></data>
+  <data name="Outcome_Partial" xml:space="preserve"><value>Sebagian: entri sudah hilang, tetapi folder instalasi masih berisi berkas</value></data>
+  <data name="Outcome_Failed" xml:space="preserve"><value>Gagal: program masih terdaftar</value></data>
+  <data name="Outcome_Cancelled" xml:space="preserve"><value>Dibatalkan</value></data>
+  <data name="Outcome_NoUninstaller" xml:space="preserve"><value>Penghapus instalan tidak ditemukan. Gunakan Hapus paksa.</value></data>
+  <data name="Outcome_Skipped" xml:space="preserve"><value>Dilewati</value></data>
+  <data name="Outcome_Error" xml:space="preserve"><value>Galat: {0}</value></data>
+  <data name="Outcome_ExitCode" xml:space="preserve"><value>kode keluar {0}</value></data>
+
+  <!-- Program sedang berjalan -->
+  <data name="Running_Title" xml:space="preserve"><value>Program sedang berjalan</value></data>
+  <data name="Running_Message" xml:space="preserve"><value>{0} masih berjalan. Sebaiknya ditutup dulu agar semua berkas bisa dihapus. Data yang belum disimpan di program tersebut akan hilang.</value></data>
+  <data name="Running_Kill" xml:space="preserve"><value>Tutup paksa</value></data>
+  <data name="Running_Ignore" xml:space="preserve"><value>Lanjutkan tanpa menutup</value></data>
+  <data name="Running_Skip" xml:space="preserve"><value>Lewati program ini</value></data>
+  <data name="Running_KillFailed" xml:space="preserve"><value>Sebagian proses tidak bisa ditutup. Hapus instalan tetap dilanjutkan.</value></data>
+
+  <!-- Hapus paksa -->
+  <data name="Force_Title" xml:space="preserve"><value>Hapus paksa</value></data>
+  <data name="Force_Message" xml:space="preserve"><value>Penghapus instalan program akan dilewati. Folder di bawah dipindahkan ke karantina dan kunci registri dicadangkan ke berkas .reg sebelum dihapus. Semuanya bisa dipulihkan lewat Riwayat selama masa simpan karantina.</value></data>
+  <data name="Force_Confirm" xml:space="preserve"><value>Hapus paksa</value></data>
+  <data name="Force_Result" xml:space="preserve"><value>Dipindahkan ke karantina: {0} folder/berkas, {1} kunci registri</value></data>
+  <data name="Force_ResultWithFailures" xml:space="preserve"><value>Dipindahkan ke karantina: {0} folder/berkas, {1} kunci registri. {2} item gagal atau dilindungi.</value></data>
+  <data name="Broken_Title" xml:space="preserve"><value>Hapus entri rusak</value></data>
+  <data name="Broken_Message" xml:space="preserve"><value>Entri "{0}" akan dihapus dari daftar program karena penghapus instalannya tidak ada. Berkas program tidak disentuh. Kunci registrinya dicadangkan ke berkas .reg dan bisa dipulihkan.</value></data>
+  <data name="Broken_Confirm" xml:space="preserve"><value>Hapus entri</value></data>
+  <data name="Broken_Done" xml:space="preserve"><value>Entri rusak dihapus. Cadangan registrinya disimpan di karantina.</value></data>
+  <data name="Broken_Failed" xml:space="preserve"><value>Entri tidak bisa dihapus: {0}</value></data>
+  <data name="Progress_StepRestorePoint" xml:space="preserve"><value>Membuat titik pemulihan...</value></data>
+  <data name="Progress_StepQuarantine" xml:space="preserve"><value>Memindahkan ke karantina</value></data>
+  <data name="Progress_PendingReboot" xml:space="preserve"><value>Beberapa berkas sedang dipakai; salinannya sudah di karantina dan aslinya dihapus saat komputer dimulai ulang.</value></data>
+  <data name="RestorePoint_Throttled" xml:space="preserve"><value>Windows tidak membuat titik pemulihan baru (biasanya dibatasi satu per 24 jam). Cadangan registri dan karantina tetap dipakai.</value></data>
+  <data name="RestorePoint_Disabled" xml:space="preserve"><value>Pemulihan Sistem (System Restore) nonaktif, jadi titik pemulihan tidak dibuat. Cadangan registri dan karantina tetap dipakai.</value></data>
+  <data name="RestorePoint_Failed" xml:space="preserve"><value>Titik pemulihan gagal dibuat. Cadangan registri dan karantina tetap dipakai.</value></data>
+  <data name="Recovery_Title" xml:space="preserve"><value>Sesi sebelumnya tidak selesai</value></data>
+  <data name="Recovery_Message" xml:space="preserve"><value>Aplikasi tertutup saat sesi "{0}" ({1}) masih berjalan. Berkas dan kunci registri yang sempat dipindahkan bisa dipulihkan sekarang.</value></data>
+  <data name="Recovery_Restore" xml:space="preserve"><value>Pulihkan</value></data>
+  <data name="Recovery_Keep" xml:space="preserve"><value>Biarkan</value></data>
+  <data name="Recovery_Done" xml:space="preserve"><value>{0} folder/berkas dan {1} kunci registri dipulihkan.</value></data>
+  <data name="Recovery_DoneWithFailures" xml:space="preserve"><value>{0} folder/berkas dan {1} kunci registri dipulihkan. {2} item gagal; rinciannya ada di catatan aktivitas.</value></data>
+  <data name="Force_TargetFolder" xml:space="preserve"><value>Folder: {0}</value></data>
+  <data name="Force_TargetRegistry" xml:space="preserve"><value>Registri: {0}</value></data>
+  <data name="Force_TargetStore" xml:space="preserve"><value>Paket Store: {0}</value></data>
+  <data name="Force_NoTargets" xml:space="preserve"><value>Tidak ada folder atau kunci registri yang bisa dihapus dengan aman untuk program ini.</value></data>
+
+  <!-- Mode Pemburu -->
+  <data name="Hunter_Title" xml:space="preserve"><value>Mode Pemburu</value></data>
+  <data name="Hunter_Instruction" xml:space="preserve"><value>Seret ikon target ke jendela program, pintasan di desktop, atau ikon di baki sistem, lalu lepaskan. Bisa juga menjatuhkan berkas pintasan atau .exe ke jendela utama.</value></data>
+  <data name="Hunter_Found" xml:space="preserve"><value>Ditemukan: {0}</value></data>
+  <data name="Hunter_NotFound" xml:space="preserve"><value>Tidak ada program terpasang yang cocok.</value></data>
+  <data name="Hunter_Source" xml:space="preserve"><value>Target: {0}</value></data>
+  <data name="Hunter_Select" xml:space="preserve"><value>Pilih di daftar</value></data>
+
+  <!-- Riwayat -->
+  <data name="History_Title" xml:space="preserve"><value>Riwayat</value></data>
+  <data name="History_Empty" xml:space="preserve"><value>Belum ada riwayat hapus instalan.</value></data>
+  <data name="History_Quarantine" xml:space="preserve"><value>Karantina: {0} · disimpan {1} hari, lalu dikosongkan otomatis</value></data>
+  <data name="History_Summary" xml:space="preserve"><value>{0} berkas/folder · {1} entri registri · {2} layanan/tugas</value></data>
+  <data name="History_Restorable" xml:space="preserve"><value>{0} item bisa dipulihkan</value></data>
+  <data name="History_NotRestorable" xml:space="preserve"><value>Tidak ada yang bisa dipulihkan dari sesi ini.</value></data>
+  <data name="History_Actions" xml:space="preserve"><value>Aksi</value></data>
+  <data name="History_SelectSession" xml:space="preserve"><value>Pilih sesi untuk melihat rinciannya.</value></data>
+  <data name="History_Undo" xml:space="preserve"><value>Batalkan sesi</value></data>
+  <data name="History_UndoConfirm" xml:space="preserve"><value>Kembalikan semua berkas dan entri registri dari sesi "{0}"? Program yang sudah dihapus penghapus instalannya bisa kembali terdaftar, tetapi berkasnya hanya utuh bila ikut masuk karantina.</value></data>
+  <data name="History_Undone" xml:space="preserve"><value>Sesi dibatalkan: {0} berkas/folder dan {1} entri dipulihkan.</value></data>
+  <data name="History_UndoneWithFailures" xml:space="preserve"><value>Sesi dibatalkan sebagian: {0} berkas/folder dan {1} entri dipulihkan, {2} item gagal.</value></data>
+  <data name="History_CopyReport" xml:space="preserve"><value>Salin laporan</value></data>
+  <data name="History_ReportCopied" xml:space="preserve"><value>Laporan disalin ke papan klip.</value></data>
+  <data name="History_OpenQuarantine" xml:space="preserve"><value>Buka folder karantina</value></data>
+  <data name="History_Purge" xml:space="preserve"><value>Kosongkan karantina sesi</value></data>
+  <data name="History_PurgeConfirm" xml:space="preserve"><value>Isi karantina sesi "{0}" ({1}) akan dihapus permanen. Setelah itu sesi ini tidak bisa dibatalkan lagi.</value></data>
+  <data name="History_PurgeConfirmYes" xml:space="preserve"><value>Hapus permanen</value></data>
+  <data name="History_Purged" xml:space="preserve"><value>Karantina sesi dikosongkan.</value></data>
+  <data name="History_PurgedNote" xml:space="preserve"><value>Karantina dikosongkan oleh pengguna</value></data>
+  <data name="SessionStatus_Running" xml:space="preserve"><value>Belum selesai</value></data>
+  <data name="SessionStatus_Completed" xml:space="preserve"><value>Selesai</value></data>
+  <data name="SessionStatus_Interrupted" xml:space="preserve"><value>Terputus</value></data>
+  <data name="SessionStatus_Restored" xml:space="preserve"><value>Dibatalkan</value></data>
+  <data name="SessionMode_Builtin" xml:space="preserve"><value>Bawaan</value></data>
+  <data name="SessionMode_Safe" xml:space="preserve"><value>Aman</value></data>
+  <data name="SessionMode_Normal" xml:space="preserve"><value>Normal</value></data>
+  <data name="SessionMode_Super" xml:space="preserve"><value>Super</value></data>
+  <data name="SessionMode_Force" xml:space="preserve"><value>Hapus paksa</value></data>
+  <data name="SessionMode_BrokenEntry" xml:space="preserve"><value>Hapus entri rusak</value></data>
+  <data name="ActionKind_RestorePoint" xml:space="preserve"><value>Titik pemulihan</value></data>
+  <data name="ActionKind_RunUninstaller" xml:space="preserve"><value>Penghapus instalan</value></data>
+  <data name="ActionKind_KillProcess" xml:space="preserve"><value>Tutup paksa proses</value></data>
+  <data name="ActionKind_QuarantinePath" xml:space="preserve"><value>Pindah ke karantina</value></data>
+  <data name="ActionKind_DeleteRegistryKey" xml:space="preserve"><value>Hapus kunci registri</value></data>
+  <data name="ActionKind_DeleteRegistryValue" xml:space="preserve"><value>Hapus nilai registri</value></data>
+  <data name="ActionKind_DeleteService" xml:space="preserve"><value>Hapus layanan</value></data>
+  <data name="ActionKind_DeleteScheduledTask" xml:space="preserve"><value>Hapus tugas terjadwal</value></data>
+  <data name="ActionStatus_Pending" xml:space="preserve"><value>Tertunda</value></data>
+  <data name="ActionStatus_Done" xml:space="preserve"><value>Selesai</value></data>
+  <data name="ActionStatus_Failed" xml:space="preserve"><value>Gagal</value></data>
+  <data name="ActionStatus_Skipped" xml:space="preserve"><value>Dilewati</value></data>
+  <data name="ActionStatus_Restored" xml:space="preserve"><value>Dipulihkan</value></data>
+
+  <!-- Keterangan aksi di jurnal (tampil di Riwayat) -->
+  <data name="RestorePointResult_Created" xml:space="preserve"><value>Dibuat</value></data>
+  <data name="RestorePointResult_Throttled" xml:space="preserve"><value>Ditolak Windows (batas satu per 24 jam)</value></data>
+  <data name="RestorePointResult_Disabled" xml:space="preserve"><value>Pemulihan Sistem nonaktif</value></data>
+  <data name="RestorePointResult_Failed" xml:space="preserve"><value>Gagal dibuat</value></data>
+  <data name="OutcomeShort_Success" xml:space="preserve"><value>Berhasil</value></data>
+  <data name="OutcomeShort_Partial" xml:space="preserve"><value>Sebagian</value></data>
+  <data name="OutcomeShort_Failed" xml:space="preserve"><value>Gagal</value></data>
+  <data name="OutcomeShort_Cancelled" xml:space="preserve"><value>Dibatalkan</value></data>
+  <data name="OutcomeShort_NoUninstaller" xml:space="preserve"><value>Penghapus instalan tidak ada</value></data>
+  <data name="Journal_OutcomeWithCode" xml:space="preserve"><value>{0}, kode keluar {1}</value></data>
+
+  <!-- Pesan -->
+  <data name="Feature_NotYet_Title" xml:space="preserve"><value>Belum tersedia</value></data>
+  <data name="Feature_NotYet_Message" xml:space="preserve"><value>Fitur "{0}" dikerjakan di tahap berikutnya.</value></data>
+  <data name="Folder_NotFound" xml:space="preserve"><value>Folder tidak ditemukan:
+{0}</value></data>
+  <data name="Registry_OpenFailed" xml:space="preserve"><value>Editor Registri tidak bisa dibuka. Rincian ada di catatan aktivitas.</value></data>
+  <data name="Error_Title" xml:space="preserve"><value>Terjadi galat</value></data>
+  <data name="Error_Unexpected" xml:space="preserve"><value>Terjadi galat yang tidak terduga, tetapi aplikasi tetap berjalan. Rincian sudah dicatat di catatan aktivitas.
+
+{0}</value></data>
+  <data name="Error_Fatal" xml:space="preserve"><value>Terjadi galat berat dan aplikasi harus ditutup. Rincian sudah dicatat di catatan aktivitas.
+
+{0}</value></data>
+</root>

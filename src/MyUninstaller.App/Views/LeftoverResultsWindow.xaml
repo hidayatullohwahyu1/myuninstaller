@@ -1,0 +1,207 @@
+<local:ThemedWindow x:Class="MyUninstaller.App.Views.LeftoverResultsWindow"
+                    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+                    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+                    xmlns:local="clr-namespace:MyUninstaller.App.Views"
+                    xmlns:loc="clr-namespace:MyUninstaller.App.Localization"
+                    xmlns:vm="clr-namespace:MyUninstaller.App.ViewModels"
+                    xmlns:conv="clr-namespace:MyUninstaller.App.Converters"
+                    mc:Ignorable="d"
+                    d:DataContext="{d:DesignInstance Type=vm:LeftoverResultsViewModel}"
+                    Title="{loc:Tr Leftovers_Title}"
+                    Width="880" Height="640" MinWidth="700" MinHeight="460"
+                    ShowInTaskbar="True" WindowStartupLocation="CenterOwner">
+    <Window.Resources>
+        <BooleanToVisibilityConverter x:Key="BoolToVisibility" />
+        <conv:InverseBoolToVisibilityConverter x:Key="InverseBoolToVisibility" />
+
+        <Style x:Key="CollapsedWhenNull" TargetType="FrameworkElement">
+            <Style.Triggers>
+                <DataTrigger Binding="{Binding Tag, RelativeSource={RelativeSource Self}}" Value="{x:Null}">
+                    <Setter Property="Visibility" Value="Collapsed" />
+                </DataTrigger>
+            </Style.Triggers>
+        </Style>
+
+        <!-- Kotak centang bertema -->
+        <Style x:Key="LeftoverCheck" TargetType="CheckBox">
+            <Setter Property="Cursor" Value="Hand" />
+            <Setter Property="VerticalAlignment" Value="Center" />
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="CheckBox">
+                        <Border x:Name="Box" Width="18" Height="18" CornerRadius="4" BorderThickness="1.5"
+                                BorderBrush="{DynamicResource ScrollThumbHoverBrush}" Background="Transparent">
+                            <TextBlock x:Name="Mark" Style="{StaticResource GlyphText}" FontSize="11" HorizontalAlignment="Center"
+                                       Text="&#xE73E;" Foreground="{DynamicResource OnAccentBrush}" Visibility="Collapsed" />
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsChecked" Value="True">
+                                <Setter TargetName="Box" Property="Background" Value="{DynamicResource AccentBrush}" />
+                                <Setter TargetName="Box" Property="BorderBrush" Value="{DynamicResource AccentBrush}" />
+                                <Setter TargetName="Mark" Property="Visibility" Value="Visible" />
+                            </Trigger>
+                            <Trigger Property="IsEnabled" Value="False">
+                                <Setter Property="Opacity" Value="0.4" />
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- Lencana skor: hijau (Aman), jingga (Mungkin), abu-abu (Ragu) -->
+        <Style x:Key="ScoreBadge" TargetType="Border">
+            <Setter Property="CornerRadius" Value="4" />
+            <Setter Property="Padding" Value="6,1" />
+            <Setter Property="MinWidth" Value="30" />
+            <Setter Property="Background" Value="{DynamicResource BadgeNewBrush}" />
+            <Style.Triggers>
+                <DataTrigger Binding="{Binding Group}" Value="Maybe">
+                    <Setter Property="Background" Value="{DynamicResource BadgeRareBrush}" />
+                </DataTrigger>
+                <DataTrigger Binding="{Binding Group}" Value="Doubtful">
+                    <Setter Property="Background" Value="{DynamicResource ScrollThumbHoverBrush}" />
+                </DataTrigger>
+            </Style.Triggers>
+        </Style>
+    </Window.Resources>
+
+    <DockPanel Margin="20,16,20,16">
+        <!-- Kepala -->
+        <StackPanel DockPanel.Dock="Top" Margin="0,0,0,12">
+            <TextBlock Text="{Binding HeaderText}" FontFamily="{StaticResource UiDisplayFont}" FontSize="18" FontWeight="SemiBold" />
+            <TextBlock Text="{loc:Tr Leftovers_Subheader}" Margin="0,3,0,0" Foreground="{DynamicResource TextSecondaryBrush}" />
+        </StackPanel>
+
+        <!-- Ringkasan setelah dibersihkan -->
+        <Border DockPanel.Dock="Bottom" Margin="0,12,0,0" Padding="14,10" CornerRadius="8"
+                Background="{DynamicResource SurfaceBrush}" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1"
+                Visibility="{Binding IsDone, Converter={StaticResource BoolToVisibility}}">
+            <StackPanel>
+                <TextBlock Text="{Binding SummaryText}" FontWeight="SemiBold" FontSize="14" TextWrapping="Wrap" />
+                <TextBlock Text="{Binding SummaryDetailText}" Tag="{Binding SummaryDetailText}" Style="{StaticResource CollapsedWhenNull}"
+                           Margin="0,3,0,0" TextWrapping="Wrap" Foreground="{DynamicResource TextSecondaryBrush}" />
+            </StackPanel>
+        </Border>
+
+        <!-- Tombol -->
+        <Grid DockPanel.Dock="Bottom" Margin="0,12,0,0">
+            <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                <TextBlock Text="{Binding CheckedText}" VerticalAlignment="Center" Foreground="{DynamicResource TextSecondaryBrush}" Margin="0,0,16,0" />
+                <CheckBox Style="{StaticResource LeftoverCheck}" IsChecked="{Binding ShowDoubtful}"
+                          Visibility="{Binding HasDoubtful, Converter={StaticResource BoolToVisibility}}" />
+                <TextBlock Text="{Binding ShowDoubtfulText}" Margin="8,0,16,0" VerticalAlignment="Center"
+                           Visibility="{Binding HasDoubtful, Converter={StaticResource BoolToVisibility}}" />
+                <Button Style="{StaticResource LinkButton}" Content="{loc:Tr Leftovers_SelectSafe}" Command="{Binding SelectSafeCommand}"
+                        VerticalAlignment="Center" Margin="0,0,14,0" />
+                <Button Style="{StaticResource LinkButton}" Content="{loc:Tr Leftovers_SelectNone}" Command="{Binding SelectNoneCommand}"
+                        VerticalAlignment="Center" />
+            </StackPanel>
+
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                <TextBlock Text="{loc:Tr Leftovers_Working}" VerticalAlignment="Center" Margin="0,0,12,0"
+                           Foreground="{DynamicResource AccentTextBrush}"
+                           Visibility="{Binding IsWorking, Converter={StaticResource BoolToVisibility}}" />
+                <Button Style="{StaticResource SecondaryButton}" Tag="{StaticResource Glyph.History}" Content="{loc:Tr Leftovers_Undo}"
+                        Command="{Binding UndoCommand}" MinWidth="100" Margin="0,0,8,0"
+                        Visibility="{Binding IsDone, Converter={StaticResource BoolToVisibility}}" />
+                <Button x:Name="SkipButton" Style="{StaticResource SecondaryButton}" Command="{Binding SkipCommand}" IsCancel="True" MinWidth="100" />
+                <!-- Tombol berbahaya: merah dan TIDAK PERNAH tombol Enter (PRD). -->
+                <Button Style="{StaticResource DangerButton}" Content="{loc:Tr Leftovers_Remove}" Command="{Binding RemoveCheckedCommand}"
+                        Margin="8,0,0,0" Padding="16,8" FontSize="13"
+                        Visibility="{Binding IsDone, Converter={StaticResource InverseBoolToVisibility}}" />
+            </StackPanel>
+        </Grid>
+
+        <!-- Daftar temuan, dikelompokkan per program lalu Aman / Mungkin / Ragu -->
+        <Border CornerRadius="8" BorderThickness="1" BorderBrush="{DynamicResource BorderBrush}" Background="{DynamicResource SurfaceBrush}">
+            <ListBox ItemsSource="{Binding View}" Background="Transparent" BorderThickness="0" Padding="4"
+                     Foreground="{DynamicResource TextPrimaryBrush}"
+                     HorizontalContentAlignment="Stretch" ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+                     VirtualizingPanel.IsVirtualizingWhenGrouping="True" VirtualizingPanel.ScrollUnit="Pixel">
+                <ListBox.ItemContainerStyle>
+                    <Style TargetType="ListBoxItem">
+                        <Setter Property="Focusable" Value="False" />
+                        <Setter Property="Template">
+                            <Setter.Value>
+                                <ControlTemplate TargetType="ListBoxItem">
+                                    <Border x:Name="Bd" Background="Transparent" CornerRadius="5" Padding="8,5">
+                                        <ContentPresenter />
+                                    </Border>
+                                    <ControlTemplate.Triggers>
+                                        <Trigger Property="IsMouseOver" Value="True">
+                                            <Setter TargetName="Bd" Property="Background" Value="{DynamicResource HoverBrush}" />
+                                        </Trigger>
+                                    </ControlTemplate.Triggers>
+                                </ControlTemplate>
+                            </Setter.Value>
+                        </Setter>
+                    </Style>
+                </ListBox.ItemContainerStyle>
+
+                <ListBox.GroupStyle>
+                    <!-- Tingkat 1: nama program -->
+                    <GroupStyle>
+                        <GroupStyle.HeaderTemplate>
+                            <DataTemplate>
+                                <TextBlock Text="{Binding Name}" FontFamily="{StaticResource UiDisplayFont}" FontSize="15" FontWeight="SemiBold"
+                                           Margin="8,10,0,2" />
+                            </DataTemplate>
+                        </GroupStyle.HeaderTemplate>
+                    </GroupStyle>
+                    <!-- Tingkat 2: Aman / Mungkin / Ragu -->
+                    <GroupStyle>
+                        <GroupStyle.HeaderTemplate>
+                            <DataTemplate>
+                                <StackPanel Orientation="Horizontal" Margin="8,8,0,2">
+                                    <TextBlock Text="{Binding Name}" FontWeight="SemiBold" FontSize="12"
+                                               Foreground="{DynamicResource TextSecondaryBrush}" />
+                                    <TextBlock Text="{Binding ItemCount, StringFormat=' ({0})'}" FontSize="12"
+                                               Foreground="{DynamicResource TextSecondaryBrush}" />
+                                </StackPanel>
+                            </DataTemplate>
+                        </GroupStyle.HeaderTemplate>
+                    </GroupStyle>
+                </ListBox.GroupStyle>
+
+                <ListBox.ItemTemplate>
+                    <DataTemplate DataType="{x:Type vm:LeftoverItemViewModel}">
+                        <Grid ToolTip="{Binding ToolTipText}">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="30" />
+                                <ColumnDefinition Width="26" />
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="Auto" />
+                                <ColumnDefinition Width="Auto" />
+                            </Grid.ColumnDefinitions>
+                            <CheckBox Style="{StaticResource LeftoverCheck}" IsChecked="{Binding IsChecked}" IsEnabled="{Binding IsEditable}" />
+                            <TextBlock Grid.Column="1" Style="{StaticResource GlyphText}" FontSize="15" Text="{Binding KindGlyph}"
+                                       Foreground="{DynamicResource TextSecondaryBrush}" />
+                            <StackPanel Grid.Column="2" Margin="0,0,12,0">
+                                <TextBlock Text="{Binding LocationText}" TextTrimming="CharacterEllipsis" />
+                                <TextBlock FontSize="11.5" Foreground="{DynamicResource TextSecondaryBrush}" TextTrimming="CharacterEllipsis">
+                                    <Run Text="{Binding KindText, Mode=OneWay}" /><Run Text=" · " /><Run Text="{Binding EvidenceText, Mode=OneWay}" />
+                                </TextBlock>
+                                <TextBlock x:Name="Result" Text="{Binding ResultText}" FontSize="11.5" FontWeight="SemiBold"
+                                           Foreground="{DynamicResource BadgeNewBrush}"
+                                           Visibility="{Binding HasResult, Converter={StaticResource BoolToVisibility}}" />
+                            </StackPanel>
+                            <TextBlock Grid.Column="3" Text="{Binding SizeText}" VerticalAlignment="Center" Margin="0,0,12,0"
+                                       Foreground="{DynamicResource TextSecondaryBrush}" />
+                            <Border Grid.Column="4" Style="{StaticResource ScoreBadge}" VerticalAlignment="Center">
+                                <TextBlock Text="{Binding Score}" Foreground="White" FontWeight="Bold" FontSize="11" HorizontalAlignment="Center" />
+                            </Border>
+                        </Grid>
+                        <DataTemplate.Triggers>
+                            <DataTrigger Binding="{Binding ResultIsProblem}" Value="True">
+                                <Setter TargetName="Result" Property="Foreground" Value="{DynamicResource DangerBrush}" />
+                            </DataTrigger>
+                        </DataTemplate.Triggers>
+                    </DataTemplate>
+                </ListBox.ItemTemplate>
+            </ListBox>
+        </Border>
+    </DockPanel>
+</local:ThemedWindow>

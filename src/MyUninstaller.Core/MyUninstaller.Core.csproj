@@ -1,0 +1,14 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <!-- Core: model dan logika murni, tanpa ketergantungan UI maupun API Windows,
+       supaya bisa dites cepat. -->
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <RootNamespace>MyUninstaller.Core</RootNamespace>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <InternalsVisibleTo Include="MyUninstaller.Tests" />
+  </ItemGroup>
+
+</Project>

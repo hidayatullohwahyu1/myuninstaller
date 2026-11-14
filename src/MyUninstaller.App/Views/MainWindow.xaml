@@ -1,0 +1,401 @@
+<Window x:Class="MyUninstaller.App.Views.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:loc="clr-namespace:MyUninstaller.App.Localization"
+        xmlns:vm="clr-namespace:MyUninstaller.App.ViewModels"
+        xmlns:conv="clr-namespace:MyUninstaller.App.Converters"
+        xmlns:settings="clr-namespace:MyUninstaller.Core.Settings;assembly=MyUninstaller.Core"
+        mc:Ignorable="d"
+        d:DataContext="{d:DesignInstance Type=vm:MainViewModel}"
+        Title="{loc:Tr AppName}"
+        Icon="/Assets/MyUninstaller.ico"
+        Width="1180" Height="760" MinWidth="900" MinHeight="600"
+        WindowStartupLocation="CenterScreen"
+        Background="{DynamicResource WindowBackgroundBrush}"
+        Foreground="{DynamicResource TextPrimaryBrush}"
+        FontFamily="{StaticResource UiFont}" FontSize="13"
+        UseLayoutRounding="True" SnapsToDevicePixels="True"
+        TextOptions.TextFormattingMode="Display"
+        AllowDrop="True" DragOver="Window_DragOver" Drop="Window_Drop">
+
+    <Window.Resources>
+        <BooleanToVisibilityConverter x:Key="BoolToVisibility" />
+        <conv:TileCornerConverter x:Key="TileCornerConverter" />
+
+        <!-- Menu klik kanan untuk item program (kisi dan tabel). -->
+        <ContextMenu x:Key="ProgramContextMenu"
+                     DataContext="{Binding PlacementTarget.Tag, RelativeSource={RelativeSource Self}}">
+            <MenuItem Header="{loc:Tr Menu_Uninstall}" Tag="{StaticResource Glyph.Delete}" InputGestureText="Del"
+                      Command="{Binding UninstallCommand}" />
+            <MenuItem Header="{loc:Tr Menu_ForceUninstall}" Tag="{StaticResource Glyph.Force}"
+                      Command="{Binding ForceUninstallCommand}" />
+            <Separator />
+            <MenuItem Header="{loc:Tr Menu_OpenFolder}" Tag="{StaticResource Glyph.Folder}"
+                      Command="{Binding OpenFolderCommand}" />
+            <MenuItem Header="{loc:Tr Menu_OpenRegistry}" Tag="{StaticResource Glyph.Registry}"
+                      Command="{Binding OpenRegistryCommand}" />
+            <MenuItem Header="{loc:Tr Menu_SearchGoogle}" Tag="{StaticResource Glyph.Globe}"
+                      Command="{Binding SearchWebCommand}" />
+            <MenuItem Header="{loc:Tr Menu_CopyName}" Tag="{StaticResource Glyph.Copy}" InputGestureText="Ctrl+C"
+                      Command="{Binding CopyNameCommand}" />
+            <Separator />
+            <MenuItem Header="{loc:Tr Menu_RemoveBrokenEntry}" Tag="{StaticResource Glyph.Warning}"
+                      Command="{Binding RemoveBrokenEntryCommand}" />
+        </ContextMenu>
+
+        <!-- Ikon program: gambar asli bila ada, selain itu ubin berwarna dengan huruf awal. -->
+        <DataTemplate x:Key="ProgramIconTemplate" DataType="{x:Type vm:ProgramItemViewModel}">
+            <Grid>
+                <Border CornerRadius="{Binding ActualHeight, RelativeSource={RelativeSource Self}, Converter={StaticResource TileCornerConverter}}" Background="{Binding TileBrush}">
+                    <Border.Style>
+                        <Style TargetType="Border">
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding HasIcon}" Value="True">
+                                    <Setter Property="Visibility" Value="Collapsed" />
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </Border.Style>
+                    <!-- Margin di dalam Viewbox ikut berskala, jadi proporsional di 22, 48, dan 64 px. -->
+                    <Viewbox>
+                        <TextBlock Text="{Binding Initial}" Foreground="White" FontWeight="SemiBold" Margin="5,2"
+                                   FontFamily="{StaticResource UiDisplayFont}" />
+                    </Viewbox>
+                </Border>
+                <Image Source="{Binding Icon}" RenderOptions.BitmapScalingMode="HighQuality"
+                       Visibility="{Binding HasIcon, Converter={StaticResource BoolToVisibility}}" />
+            </Grid>
+        </DataTemplate>
+
+        <DataTemplate x:Key="ProgramTileTemplate" DataType="{x:Type vm:ProgramItemViewModel}">
+            <Grid ToolTip="{Binding SummaryText}">
+                <StackPanel Margin="6,10,6,4">
+                    <ContentPresenter Width="48" Height="48" Content="{Binding}" ContentTemplate="{StaticResource ProgramIconTemplate}" />
+                    <TextBlock Text="{Binding DisplayName}" Margin="0,7,0,0" TextAlignment="Center"
+                               TextWrapping="Wrap" TextTrimming="CharacterEllipsis" MaxHeight="34" LineHeight="17"
+                               LineStackingStrategy="BlockLineHeight" FontSize="12" />
+                </StackPanel>
+                <!-- Label BARU / JARANG di pojok kanan atas -->
+                <StackPanel HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,5,5,0">
+                    <Border Style="{StaticResource BadgeBorder}" Background="{DynamicResource BadgeNewBrush}"
+                            ToolTip="{loc:Tr Badge_New_Tooltip}"
+                            Visibility="{Binding IsNew, Converter={StaticResource BoolToVisibility}}">
+                        <TextBlock Style="{StaticResource BadgeText}" Text="{loc:Tr Badge_New}" />
+                    </Border>
+                    <Border Style="{StaticResource BadgeBorder}" Background="{DynamicResource BadgeRareBrush}" Margin="0,2,0,0"
+                            ToolTip="{loc:Tr Badge_Rare_Tooltip}"
+                            Visibility="{Binding IsRarelyUsed, Converter={StaticResource BoolToVisibility}}">
+                        <TextBlock Style="{StaticResource BadgeText}" Text="{loc:Tr Badge_Rare}" />
+                    </Border>
+                </StackPanel>
+            </Grid>
+        </DataTemplate>
+    </Window.Resources>
+
+    <Window.InputBindings>
+        <KeyBinding Key="F5" Command="{Binding RefreshCommand}" />
+        <KeyBinding Key="H" Modifiers="Control" Command="{Binding HunterModeCommand}" />
+    </Window.InputBindings>
+
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />  <!-- kepala -->
+            <RowDefinition Height="*" />     <!-- panel kiri + area utama -->
+            <RowDefinition Height="Auto" />  <!-- bilah status -->
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="200" />
+            <ColumnDefinition Width="*" />
+        </Grid.ColumnDefinitions>
+
+        <!-- ================= Kepala jendela ================= -->
+        <Border Grid.ColumnSpan="2" Background="{DynamicResource SurfaceBrush}"
+                BorderBrush="{DynamicResource DividerBrush}" BorderThickness="0,0,0,1" Padding="16,10">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="184" />
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+                <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                    <Image Source="/Assets/MyUninstaller-256.png" Width="30" Height="30"
+                           RenderOptions.BitmapScalingMode="HighQuality" />
+                    <TextBlock Text="{loc:Tr AppName}" Margin="10,0,0,0" VerticalAlignment="Center"
+                               FontFamily="{StaticResource UiDisplayFont}" FontSize="17" FontWeight="SemiBold" />
+                </StackPanel>
+                <TextBox x:Name="SearchBox" Grid.Column="1" Style="{StaticResource SearchBox}"
+                         Tag="{loc:Tr Search_Placeholder}" MaxWidth="560" HorizontalAlignment="Stretch" Margin="16,0"
+                         Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}"
+                         PreviewKeyDown="SearchBox_PreviewKeyDown" />
+                <Button Grid.Column="2" Style="{StaticResource IconButton}" Tag="{StaticResource Glyph.Refresh}"
+                        ToolTip="{loc:Tr Refresh_Tooltip}" Command="{Binding RefreshCommand}" />
+            </Grid>
+        </Border>
+
+        <!-- ================= Panel kiri ================= -->
+        <Border Grid.Row="1" Background="{DynamicResource SidebarBackgroundBrush}"
+                BorderBrush="{DynamicResource DividerBrush}" BorderThickness="0,0,1,0">
+            <ScrollViewer VerticalScrollBarVisibility="Auto" Focusable="False">
+                <StackPanel Margin="0,0,0,12">
+                    <TextBlock Style="{StaticResource GroupHeaderText}" Text="{loc:Tr Group_Program}" />
+                    <Button Style="{StaticResource NavButton}" Tag="{StaticResource Glyph.Delete}" Content="{loc:Tr Nav_Uninstall}"
+                            ToolTip="{loc:Tr Tooltip_Uninstall}" Command="{Binding UninstallCommand}" />
+                    <Button Style="{StaticResource NavButton}" Tag="{StaticResource Glyph.Force}" Content="{loc:Tr Nav_ForceUninstall}"
+                            ToolTip="{loc:Tr Tooltip_ForceUninstall}" Command="{Binding ForceUninstallCommand}" />
+                    <Button Style="{StaticResource NavButton}" Tag="{StaticResource Glyph.Target}" Content="{loc:Tr Nav_Hunter}"
+                            ToolTip="{loc:Tr Tooltip_Hunter}" Command="{Binding HunterModeCommand}" />
+                    <Button Style="{StaticResource NavButton}" Tag="{StaticResource Glyph.Repair}" Content="{loc:Tr Nav_AutoFix}"
+                            ToolTip="{loc:Tr Tooltip_AutoFix}" Command="{Binding AutoFixCommand}" />
+                    <Button Style="{StaticResource NavButton}" Tag="{StaticResource Glyph.History}" Content="{loc:Tr Nav_History}"
+                            ToolTip="{loc:Tr Tooltip_History}" Command="{Binding HistoryCommand}" />
+
+                    <TextBlock Style="{StaticResource GroupHeaderText}" Text="{loc:Tr Group_Tools}" />
+                    <Button x:Name="StartupNav" Style="{StaticResource NavButton}" Tag="{StaticResource Glyph.Power}"
+                            Content="{loc:Tr Nav_Startup}" IsEnabled="False" />
+                    <Button x:Name="CleanerNav" Style="{StaticResource NavButton}" Tag="{StaticResource Glyph.Broom}"
+                            Content="{loc:Tr Nav_Cleaner}" IsEnabled="False" />
+
+                    <TextBlock Style="{StaticResource GroupHeaderText}" Text="{loc:Tr Group_View}" />
+                    <RadioButton Style="{StaticResource NavButton}" Tag="{StaticResource Glyph.Grid}" Content="{loc:Tr View_Icons}"
+                                 GroupName="ViewMode" IsChecked="{Binding IsIconView}" />
+                    <RadioButton Style="{StaticResource NavButton}" Tag="{StaticResource Glyph.List}" Content="{loc:Tr View_Details}"
+                                 GroupName="ViewMode" IsChecked="{Binding IsDetailsView}" />
+                    <CheckBox Style="{StaticResource NavButton}" Tag="{StaticResource Glyph.Settings}" Content="{loc:Tr View_ShowSystem}"
+                              ToolTip="{loc:Tr Tooltip_ShowSystem}" IsChecked="{Binding ShowSystemComponents}" />
+                    <Button x:Name="SortButton" Style="{StaticResource NavButton}" Tag="{StaticResource Glyph.Sort}"
+                            Content="{loc:Tr Sort_Label}" Click="SortButton_Click">
+                        <Button.ContextMenu>
+                            <ContextMenu Placement="Right">
+                                <MenuItem Header="{loc:Tr Sort_Name}" IsCheckable="False" IsChecked="{Binding IsSortByName, Mode=OneWay}"
+                                          Command="{Binding SortByCommand}" CommandParameter="{x:Static settings:ProgramSortKey.Name}" />
+                                <MenuItem Header="{loc:Tr Sort_Publisher}" IsChecked="{Binding IsSortByPublisher, Mode=OneWay}"
+                                          Command="{Binding SortByCommand}" CommandParameter="{x:Static settings:ProgramSortKey.Publisher}" />
+                                <MenuItem Header="{loc:Tr Sort_Size}" IsChecked="{Binding IsSortBySize, Mode=OneWay}"
+                                          Command="{Binding SortByCommand}" CommandParameter="{x:Static settings:ProgramSortKey.Size}" />
+                                <MenuItem Header="{loc:Tr Sort_InstallDate}" IsChecked="{Binding IsSortByInstallDate, Mode=OneWay}"
+                                          Command="{Binding SortByCommand}" CommandParameter="{x:Static settings:ProgramSortKey.InstallDate}" />
+                                <Separator />
+                                <MenuItem Header="{loc:Tr Sort_Descending}" IsChecked="{Binding SortDescending, Mode=OneWay}"
+                                          Click="SortDescending_Click" />
+                            </ContextMenu>
+                        </Button.ContextMenu>
+                    </Button>
+                </StackPanel>
+            </ScrollViewer>
+        </Border>
+
+        <!-- ================= Area utama ================= -->
+        <Grid Grid.Row="1" Grid.Column="1">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="*" />
+                <RowDefinition Height="Auto" />
+            </Grid.RowDefinitions>
+
+            <!-- Kisi ikon besar -->
+            <ListBox x:Name="IconList" Background="Transparent" BorderThickness="0" Padding="10,8"
+                     ItemsSource="{Binding ProgramsView}" SelectedItem="{Binding SelectedProgram}"
+                     SelectionMode="Extended" ItemTemplate="{StaticResource ProgramTileTemplate}"
+                     ItemContainerStyle="{StaticResource ProgramTileItem}"
+                     ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+                     Tag="{Binding}" ContextMenu="{StaticResource ProgramContextMenu}"
+                     SelectionChanged="ProgramList_SelectionChanged" MouseDoubleClick="ProgramList_MouseDoubleClick"
+                     Visibility="{Binding IsIconView, Converter={StaticResource BoolToVisibility}}">
+                <ListBox.InputBindings>
+                    <KeyBinding Key="Delete" Command="{Binding UninstallCommand}" />
+                    <KeyBinding Key="C" Modifiers="Control" Command="{Binding CopyNameCommand}" />
+                </ListBox.InputBindings>
+                <ListBox.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <WrapPanel />
+                    </ItemsPanelTemplate>
+                </ListBox.ItemsPanel>
+            </ListBox>
+
+            <!-- Tabel rincian -->
+            <ListView x:Name="DetailsList" Background="Transparent" BorderThickness="0" Padding="6,4"
+                      ItemsSource="{Binding ProgramsView}" SelectedItem="{Binding SelectedProgram}"
+                      SelectionMode="Extended" ItemContainerStyle="{StaticResource ProgramRowItem}"
+                      Tag="{Binding}" ContextMenu="{StaticResource ProgramContextMenu}"
+                      SelectionChanged="ProgramList_SelectionChanged" MouseDoubleClick="ProgramList_MouseDoubleClick"
+                      GridViewColumnHeader.Click="DetailsHeader_Click"
+                      VirtualizingPanel.IsVirtualizing="True" VirtualizingPanel.VirtualizationMode="Recycling"
+                      Visibility="{Binding IsDetailsView, Converter={StaticResource BoolToVisibility}}">
+                <ListView.InputBindings>
+                    <KeyBinding Key="Delete" Command="{Binding UninstallCommand}" />
+                    <KeyBinding Key="C" Modifiers="Control" Command="{Binding CopyNameCommand}" />
+                </ListView.InputBindings>
+                <ListView.View>
+                    <GridView AllowsColumnReorder="False">
+                        <GridViewColumn Width="340">
+                            <GridViewColumnHeader Content="{loc:Tr Column_Name}" Tag="{x:Static settings:ProgramSortKey.Name}" />
+                            <GridViewColumn.CellTemplate>
+                                <DataTemplate DataType="{x:Type vm:ProgramItemViewModel}">
+                                    <StackPanel Orientation="Horizontal">
+                                        <ContentPresenter Width="22" Height="22" Content="{Binding}"
+                                                          ContentTemplate="{StaticResource ProgramIconTemplate}" />
+                                        <TextBlock Text="{Binding DisplayName}" Margin="10,0,0,0" VerticalAlignment="Center"
+                                                   TextTrimming="CharacterEllipsis" />
+                                        <Border Style="{StaticResource BadgeBorder}" Background="{DynamicResource BadgeNewBrush}" Margin="8,0,0,0"
+                                                VerticalAlignment="Center"
+                                                Visibility="{Binding IsNew, Converter={StaticResource BoolToVisibility}}">
+                                            <TextBlock Style="{StaticResource BadgeText}" Text="{loc:Tr Badge_New}" />
+                                        </Border>
+                                        <Border Style="{StaticResource BadgeBorder}" Background="{DynamicResource BadgeRareBrush}" Margin="6,0,0,0"
+                                                VerticalAlignment="Center"
+                                                Visibility="{Binding IsRarelyUsed, Converter={StaticResource BoolToVisibility}}">
+                                            <TextBlock Style="{StaticResource BadgeText}" Text="{loc:Tr Badge_Rare}" />
+                                        </Border>
+                                    </StackPanel>
+                                </DataTemplate>
+                            </GridViewColumn.CellTemplate>
+                        </GridViewColumn>
+                        <GridViewColumn Width="220">
+                            <GridViewColumnHeader Content="{loc:Tr Column_Publisher}" Tag="{x:Static settings:ProgramSortKey.Publisher}" />
+                            <GridViewColumn.CellTemplate>
+                                <DataTemplate DataType="{x:Type vm:ProgramItemViewModel}">
+                                    <TextBlock Text="{Binding PublisherText}" TextTrimming="CharacterEllipsis"
+                                               Foreground="{DynamicResource TextSecondaryBrush}" />
+                                </DataTemplate>
+                            </GridViewColumn.CellTemplate>
+                        </GridViewColumn>
+                        <GridViewColumn Width="130">
+                            <GridViewColumnHeader Content="{loc:Tr Column_Version}" />
+                            <GridViewColumn.CellTemplate>
+                                <DataTemplate DataType="{x:Type vm:ProgramItemViewModel}">
+                                    <TextBlock Text="{Binding VersionText}" TextTrimming="CharacterEllipsis"
+                                               Foreground="{DynamicResource TextSecondaryBrush}" />
+                                </DataTemplate>
+                            </GridViewColumn.CellTemplate>
+                        </GridViewColumn>
+                        <GridViewColumn Width="100">
+                            <GridViewColumnHeader Content="{loc:Tr Column_Size}" Tag="{x:Static settings:ProgramSortKey.Size}"
+                                                  HorizontalContentAlignment="Right" />
+                            <GridViewColumn.CellTemplate>
+                                <DataTemplate DataType="{x:Type vm:ProgramItemViewModel}">
+                                    <TextBlock Text="{Binding SizeText}" TextAlignment="Right" MinWidth="78" />
+                                </DataTemplate>
+                            </GridViewColumn.CellTemplate>
+                        </GridViewColumn>
+                        <GridViewColumn Width="160">
+                            <GridViewColumnHeader Content="{loc:Tr Column_InstallDate}" Tag="{x:Static settings:ProgramSortKey.InstallDate}" />
+                            <GridViewColumn.CellTemplate>
+                                <DataTemplate DataType="{x:Type vm:ProgramItemViewModel}">
+                                    <TextBlock Text="{Binding InstallDateText}" Foreground="{DynamicResource TextSecondaryBrush}" />
+                                </DataTemplate>
+                            </GridViewColumn.CellTemplate>
+                        </GridViewColumn>
+                    </GridView>
+                </ListView.View>
+            </ListView>
+
+            <!-- Pesan bila pencarian tidak menemukan apa pun -->
+            <TextBlock Text="{Binding EmptyText}" HorizontalAlignment="Center" VerticalAlignment="Center"
+                       Foreground="{DynamicResource TextSecondaryBrush}" FontSize="14" IsHitTestVisible="False">
+                <TextBlock.Style>
+                    <Style TargetType="TextBlock">
+                        <Style.Triggers>
+                            <DataTrigger Binding="{Binding EmptyText}" Value="{x:Null}">
+                                <Setter Property="Visibility" Value="Collapsed" />
+                            </DataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </TextBlock.Style>
+            </TextBlock>
+
+            <!-- ================= Panel info bawah ================= -->
+            <Border Grid.Row="1" Background="{DynamicResource SurfaceBrush}" BorderBrush="{DynamicResource DividerBrush}"
+                    BorderThickness="0,1,0,0" Padding="20,16" MinHeight="124">
+                <Grid>
+                    <!-- Belum ada pilihan -->
+                    <TextBlock Text="{loc:Tr Info_NoSelection}" VerticalAlignment="Center" FontSize="14"
+                               Foreground="{DynamicResource TextSecondaryBrush}">
+                        <TextBlock.Style>
+                            <Style TargetType="TextBlock">
+                                <Setter Property="Visibility" Value="Collapsed" />
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding SelectedProgram}" Value="{x:Null}">
+                                        <Setter Property="Visibility" Value="Visible" />
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </TextBlock.Style>
+                    </TextBlock>
+
+                    <!-- Rincian program terpilih -->
+                    <Grid DataContext="{Binding SelectedProgram}">
+                        <Grid.Style>
+                            <Style TargetType="Grid">
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding}" Value="{x:Null}">
+                                        <Setter Property="Visibility" Value="Collapsed" />
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Grid.Style>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+
+                        <ContentPresenter Width="64" Height="64" VerticalAlignment="Top" Margin="0,2,18,0"
+                                          Content="{Binding}" ContentTemplate="{StaticResource ProgramIconTemplate}" />
+
+                        <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                            <TextBlock Text="{Binding TitleText}" FontFamily="{StaticResource UiDisplayFont}" FontSize="18"
+                                       FontWeight="SemiBold" TextTrimming="CharacterEllipsis" />
+                            <TextBlock Margin="0,4,0,0" TextTrimming="CharacterEllipsis" Foreground="{DynamicResource TextSecondaryBrush}">
+                                <!-- Satu baris: spasi/baris baru antar-Run ikut tampil sebagai spasi. -->
+                                <Run Text="{Binding SummaryText, Mode=OneWay}" /><Run Text=" · " /><Run Text="{Binding SourceText, Mode=OneWay}" />
+                            </TextBlock>
+                            <TextBlock Text="{Binding DataContext.MultiSelectionText, RelativeSource={RelativeSource AncestorType=Window}}"
+                                       Margin="0,4,0,0" FontWeight="SemiBold" Foreground="{DynamicResource AccentTextBrush}">
+                                <TextBlock.Style>
+                                    <Style TargetType="TextBlock">
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding DataContext.MultiSelectionText, RelativeSource={RelativeSource AncestorType=Window}}" Value="{x:Null}">
+                                                <Setter Property="Visibility" Value="Collapsed" />
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </TextBlock.Style>
+                            </TextBlock>
+                            <StackPanel Orientation="Horizontal" Margin="0,8,0,0">
+                                <TextBlock Style="{StaticResource GlyphText}" FontSize="13" Text="{StaticResource Glyph.Folder}"
+                                           Foreground="{DynamicResource TextSecondaryBrush}" Margin="0,0,6,0" />
+                                <Button Style="{StaticResource LinkButton}" Content="{Binding LocationText}" MaxWidth="460"
+                                        ToolTip="{loc:Tr Info_OpenFolder}" IsEnabled="{Binding HasLocation}"
+                                        Command="{Binding DataContext.OpenFolderCommand, RelativeSource={RelativeSource AncestorType=Window}}" />
+                                <StackPanel Orientation="Horizontal"
+                                            Visibility="{Binding HasWebsite, Converter={StaticResource BoolToVisibility}}">
+                                    <TextBlock Text="·" Margin="10,0" Foreground="{DynamicResource TextSecondaryBrush}" />
+                                    <TextBlock Style="{StaticResource GlyphText}" FontSize="13" Text="{StaticResource Glyph.Globe}"
+                                               Foreground="{DynamicResource TextSecondaryBrush}" Margin="0,0,6,0" />
+                                    <Button Style="{StaticResource LinkButton}" Content="{loc:Tr Info_Website}"
+                                            ToolTip="{Binding Model.WebsiteUrl}"
+                                            Command="{Binding DataContext.OpenWebsiteCommand, RelativeSource={RelativeSource AncestorType=Window}}" />
+                                </StackPanel>
+                            </StackPanel>
+                        </StackPanel>
+
+                        <Button Grid.Column="2" Style="{StaticResource DangerButton}" Content="{loc:Tr Button_Uninstall}"
+                                VerticalAlignment="Center" Margin="16,0,0,0" ToolTip="{loc:Tr Tooltip_Uninstall}"
+                                Command="{Binding DataContext.UninstallCommand, RelativeSource={RelativeSource AncestorType=Window}}" />
+                    </Grid>
+                </Grid>
+            </Border>
+        </Grid>
+
+        <!-- ================= Bilah status ================= -->
+        <Border Grid.Row="2" Grid.ColumnSpan="2" Background="{DynamicResource SidebarBackgroundBrush}"
+                BorderBrush="{DynamicResource DividerBrush}" BorderThickness="0,1,0,0" Padding="16,6">
+            <DockPanel>
+                <TextBlock DockPanel.Dock="Right" Text="{Binding NoticeText}" Foreground="{DynamicResource TextSecondaryBrush}"
+                           FontStyle="Italic" Margin="16,0,0,0" TextTrimming="CharacterEllipsis" />
+                <TextBlock Text="{Binding StatusText}" Foreground="{DynamicResource TextSecondaryBrush}" />
+            </DockPanel>
+        </Border>
+    </Grid>
+</Window>

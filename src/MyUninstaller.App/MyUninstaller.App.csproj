@@ -1,0 +1,44 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>$(WindowsTargetFramework)</TargetFramework>
+    <SupportedOSPlatformVersion>10.0.17763.0</SupportedOSPlatformVersion>
+    <UseWPF>true</UseWPF>
+    <AssemblyName>MyUninstaller</AssemblyName>
+    <RootNamespace>MyUninstaller.App</RootNamespace>
+    <ApplicationManifest>app.manifest</ApplicationManifest>
+    <ApplicationIcon>Assets\MyUninstaller.ico</ApplicationIcon>
+    <AssemblyTitle>My Uninstaller!</AssemblyTitle>
+    <!-- Dibutuhkan kode hasil LibraryImport (P/Invoke). -->
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.2" />
+    <PackageReference Include="Microsoft.Extensions.Hosting" Version="10.0.15" />
+    <PackageReference Include="Serilog.Extensions.Hosting" Version="10.0.0" />
+    <PackageReference Include="Serilog.Sinks.File" Version="7.0.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\MyUninstaller.Core\MyUninstaller.Core.csproj" />
+    <ProjectReference Include="..\MyUninstaller.Infrastructure\MyUninstaller.Infrastructure.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Resource Include="Assets\MyUninstaller.ico" />
+    <Resource Include="Assets\MyUninstaller-256.png" />
+    <None Include="Assets\MyUninstaller.svg" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- Semua teks antarmuka ada di satu berkas bahasa Indonesia. Disematkan sebagai
+         sumber daya netral (bukan satelit) karena bahasa Indonesia adalah bahasa utama. -->
+    <EmbeddedResource Update="Resources\Strings.id.resx">
+      <WithCulture>false</WithCulture>
+      <LogicalName>MyUninstaller.App.Resources.Strings.resources</LogicalName>
+    </EmbeddedResource>
+  </ItemGroup>
+
+</Project>

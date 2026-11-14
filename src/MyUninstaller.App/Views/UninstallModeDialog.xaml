@@ -1,0 +1,43 @@
+<local:ThemedWindow x:Class="MyUninstaller.App.Views.UninstallModeDialog"
+                    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:local="clr-namespace:MyUninstaller.App.Views"
+                    xmlns:loc="clr-namespace:MyUninstaller.App.Localization"
+                    Title="{loc:Tr Mode_Title}"
+                    Width="540" SizeToContent="Height" ResizeMode="NoResize"
+                    ShowInTaskbar="False" WindowStartupLocation="CenterOwner">
+    <DockPanel Margin="24,20,24,20">
+        <!-- Lanjutkan = tombol Enter (PRD: mode terakhir diingat, cukup tekan Enter). Bukan tombol merah. -->
+        <StackPanel DockPanel.Dock="Bottom" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,14,0,0">
+            <Button Style="{StaticResource SecondaryButton}" Content="{loc:Tr Common_Cancel}" IsCancel="True" MinWidth="96" />
+            <Button x:Name="ContinueButton" Style="{StaticResource PrimaryButton}" Content="{loc:Tr Common_Continue}"
+                    IsDefault="True" MinWidth="110" Margin="8,0,0,0" Click="Continue_Click" />
+        </StackPanel>
+
+        <StackPanel DockPanel.Dock="Top" Margin="0,0,0,14">
+            <TextBlock x:Name="HeaderText" FontFamily="{StaticResource UiDisplayFont}" FontSize="18" FontWeight="SemiBold"
+                       TextTrimming="CharacterEllipsis" />
+            <TextBlock Text="{loc:Tr Mode_HeaderHint}" Margin="0,4,0,0" Foreground="{DynamicResource TextSecondaryBrush}" />
+        </StackPanel>
+
+        <StackPanel x:Name="Options" KeyboardNavigation.DirectionalNavigation="Cycle">
+            <RadioButton x:Name="BuiltinOption" Style="{StaticResource ModeOption}" GroupName="Mode"
+                         Content="{loc:Tr Mode_Builtin}" Tag="{loc:Tr Mode_Builtin_Desc}" />
+            <RadioButton x:Name="SafeOption" Style="{StaticResource ModeOption}" GroupName="Mode"
+                         Content="{loc:Tr Mode_Safe}" Tag="{loc:Tr Mode_Safe_Desc}" />
+            <RadioButton x:Name="NormalOption" Style="{StaticResource ModeOption}" GroupName="Mode"
+                         Tag="{loc:Tr Mode_Normal_Desc}">
+                <TextBlock>
+                    <Run Text="{loc:Tr Mode_Normal}" /><Run Text="  " /><Run Text="{loc:Tr Mode_RecommendedTag}" FontWeight="Normal"
+                         FontSize="12" Foreground="{DynamicResource AccentTextBrush}" />
+                </TextBlock>
+            </RadioButton>
+            <RadioButton x:Name="SuperOption" Style="{StaticResource ModeOption}" GroupName="Mode"
+                         Content="{loc:Tr Mode_Super}" Tag="{loc:Tr Mode_Super_Desc}" />
+            <RadioButton x:Name="ForceOption" Style="{StaticResource ModeOption}" GroupName="Mode"
+                         Tag="{loc:Tr Mode_Force_Desc}">
+                <TextBlock Text="{loc:Tr Mode_Force}" Foreground="{DynamicResource DangerBrush}" />
+            </RadioButton>
+        </StackPanel>
+    </DockPanel>
+</local:ThemedWindow>
