@@ -152,8 +152,8 @@
                             ToolTip="{loc:Tr Tooltip_History}" Command="{Binding HistoryCommand}" />
 
                     <TextBlock Style="{StaticResource GroupHeaderText}" Text="{loc:Tr Group_Tools}" />
-                    <Button x:Name="StartupNav" Style="{StaticResource NavButton}" Tag="{StaticResource Glyph.Power}"
-                            Content="{loc:Tr Nav_Startup}" IsEnabled="False" />
+                    <Button Style="{StaticResource NavButton}" Tag="{StaticResource Glyph.Power}"
+                            Content="{loc:Tr Nav_Startup}" ToolTip="{loc:Tr Tooltip_Startup}" Command="{Binding StartupCommand}" />
                     <Button x:Name="CleanerNav" Style="{StaticResource NavButton}" Tag="{StaticResource Glyph.Broom}"
                             Content="{loc:Tr Nav_Cleaner}" IsEnabled="False" />
 

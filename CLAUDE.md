@@ -195,5 +195,14 @@ Pengaturan tampilan per pengguna di `%LocalAppData%\MyUninstaller\pengaturan.jso
      **Peringatan keras** (`ProgramRiskRules`, aturan PRD 1.0 yang sempat terlewat): driver, runtime bersama
      (.NET, VC++, WebView2, ...), komponen sistem → dialog Batal (bawaan) / Lewati yang berisiko / Tetap hapus (merah).
      Contoh nyata di laptop pengembang: "Windows Driver Package - ASUS (AsusPTPDrv)" = driver touchpad.
-   - [ ] 1.2 Program awal (Run, folder Startup, Task Scheduler) + penanda "jarang dipakai" (Prefetch/UserAssist).
+   - [x] 1.2 Program awal + "jarang dipakai". `StartupRepository` membaca Run (HKCU, HKLM 64/32), folder Startup
+     (pengguna/semua), dan tugas terjadwal dengan LogonTrigger/BootTrigger (bukan \Microsoft\). Nonaktifkan =
+     nilai biner `Explorer\StartupApproved\{Run,Run32,StartupFolder}` (sama dengan Task Manager, bita pertama
+     ganjil = nonaktif) atau `schtasks /change /DISABLE`; entri asli TIDAK pernah dihapus. Jendela `StartupWindow`
+     (tombol "Program awal" di panel kiri): centang Aktif/Nonaktif (dikembalikan bila gagal), program pemilik via
+     `ProgramMatcher`, buka lokasi berkas.
+     Label JARANG: `UsageHistoryReader` = UserAssist (ROT13, FILETIME di offset 60, folder dikenal via
+     SHGetKnownFolderPath) + Prefetch (nama exe ≤ 29 karakter, waktu tulis terakhir; butuh admin). `UsageIndex`
+     mengabaikan uninstaller/pembaru. Tanpa bukti pemakaian = TIDAK diberi label (riwayat Prefetch terbatas, jadi
+     ketiadaan bukti bukan bukti tidak dipakai). Panel info menampilkan "terakhir dipakai …" bila diketahui.
    - [ ] 1.3 Ekstensi browser (Chrome/Edge/Firefox).

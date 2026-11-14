@@ -27,9 +27,8 @@ public partial class MainWindow : Window
         InitializeComponent();
         DataContext = viewModel;
 
-        string tooltip = Strings.Format("Tooltip_AvailableInVersion", "1.2");
-        StartupNav.ToolTip = tooltip;
-        CleanerNav.ToolTip = tooltip;
+        // "Pembersih" belum ada di daftar fitur PRD; tombolnya tetap nonaktif.
+        CleanerNav.ToolTip = Strings.Get("Tooltip_NotYetVersion");
 
         // Ctrl+F: fokus ke kotak cari.
         InputBindings.Add(new KeyBinding(new FocusSearchCommand(this), Key.F, ModifierKeys.Control));

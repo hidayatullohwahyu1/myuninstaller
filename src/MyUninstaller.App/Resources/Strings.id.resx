@@ -302,6 +302,29 @@
   <data name="Risk_Continue" xml:space="preserve"><value>Tetap hapus</value></data>
   <data name="Risk_Skip" xml:space="preserve"><value>Lewati yang berisiko</value></data>
 
+  <!-- Program awal (versi 1.2) -->
+  <data name="Startup_Title" xml:space="preserve"><value>Program awal</value></data>
+  <data name="Startup_Subtitle" xml:space="preserve"><value>Program yang berjalan otomatis saat Windows dimulai. Menonaktifkan tidak menghapus apa pun dan bisa diaktifkan lagi kapan saja.</value></data>
+  <data name="Startup_Summary" xml:space="preserve"><value>{0} program awal · {1} aktif</value></data>
+  <data name="Startup_Empty" xml:space="preserve"><value>Tidak ada program awal.</value></data>
+  <data name="Startup_Enabled" xml:space="preserve"><value>Aktif</value></data>
+  <data name="Startup_Disabled" xml:space="preserve"><value>Nonaktif</value></data>
+  <data name="Startup_OpenLocation" xml:space="preserve"><value>Buka lokasi berkas</value></data>
+  <data name="Startup_Failed" xml:space="preserve"><value>Status "{0}" tidak bisa diubah. Rinciannya ada di catatan aktivitas.</value></data>
+  <data name="Startup_Changed" xml:space="preserve"><value>"{0}" {1}.</value></data>
+  <data name="Startup_NowEnabled" xml:space="preserve"><value>diaktifkan</value></data>
+  <data name="Startup_NowDisabled" xml:space="preserve"><value>dinonaktifkan; berlaku saat Windows dimulai berikutnya</value></data>
+  <data name="Startup_Program" xml:space="preserve"><value>Program: {0}</value></data>
+  <data name="StartupSource_RunMachine" xml:space="preserve"><value>Registri, semua pengguna</value></data>
+  <data name="StartupSource_RunMachine32" xml:space="preserve"><value>Registri 32-bit, semua pengguna</value></data>
+  <data name="StartupSource_RunUser" xml:space="preserve"><value>Registri, pengguna ini</value></data>
+  <data name="StartupSource_StartupFolderUser" xml:space="preserve"><value>Folder Startup, pengguna ini</value></data>
+  <data name="StartupSource_StartupFolderCommon" xml:space="preserve"><value>Folder Startup, semua pengguna</value></data>
+  <data name="StartupSource_ScheduledTask" xml:space="preserve"><value>Tugas terjadwal</value></data>
+  <data name="Tooltip_Startup" xml:space="preserve"><value>Lihat dan nonaktifkan program yang berjalan saat Windows dimulai</value></data>
+  <data name="Tooltip_NotYetVersion" xml:space="preserve"><value>Tersedia di versi berikutnya</value></data>
+  <data name="Info_LastUsed" xml:space="preserve"><value>terakhir dipakai {0}</value></data>
+
   <!-- Keterangan aksi di jurnal (tampil di Riwayat) -->
   <data name="RestorePointResult_Created" xml:space="preserve"><value>Dibuat</value></data>
   <data name="RestorePointResult_Throttled" xml:space="preserve"><value>Ditolak Windows (batas satu per 24 jam)</value></data>

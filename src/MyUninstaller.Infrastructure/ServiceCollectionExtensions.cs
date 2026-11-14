@@ -3,6 +3,8 @@ using Microsoft.Extensions.DependencyInjection.Extensions;
 using MyUninstaller.Core.Abstractions;
 using MyUninstaller.Core.Leftovers;
 using MyUninstaller.Core.Scanning;
+using MyUninstaller.Core.Startup;
+using MyUninstaller.Core.Usage;
 using MyUninstaller.Core.Uninstall;
 using MyUninstaller.Core.Safety;
 using MyUninstaller.Infrastructure.Processes;
@@ -12,6 +14,8 @@ using MyUninstaller.Infrastructure.Leftovers;
 using MyUninstaller.Infrastructure.WindowsRegistry;
 using MyUninstaller.Infrastructure.Scanning;
 using MyUninstaller.Infrastructure.Settings;
+using MyUninstaller.Infrastructure.Startup;
+using MyUninstaller.Infrastructure.Usage;
 using MyUninstaller.Infrastructure.Store;
 using MyUninstaller.Infrastructure.Theming;
 
@@ -52,6 +56,10 @@ public static class ServiceCollectionExtensions
         services.AddSingleton<IServiceRemover, ServiceRemover>();
         services.AddSingleton<IScheduledTaskRemover, ScheduledTaskRemover>();
         services.AddSingleton<SafeRemover>();
+
+        // Program awal dan riwayat pemakaian (versi 1.2)
+        services.AddSingleton<IStartupRepository, StartupRepository>();
+        services.AddSingleton<IUsageHistory, UsageHistoryReader>();
 
         // Pemindai sisa (Tahap 5)
         services.AddSingleton<ILeftoverScanner, LeftoverScanner>();

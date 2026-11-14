@@ -9,10 +9,13 @@ using MyUninstaller.App.Services;
 using MyUninstaller.App.Views;
 using MyUninstaller.Core.Abstractions;
 using MyUninstaller.Core.Formatting;
+using MyUninstaller.Core.Leftovers;
 using MyUninstaller.Core.Listing;
 using MyUninstaller.Core.Models;
 using MyUninstaller.Core.Scanning;
 using MyUninstaller.Core.Settings;
+using MyUninstaller.Core.Startup;
+using MyUninstaller.Core.Usage;
 
 namespace MyUninstaller.App.ViewModels;
 
@@ -29,6 +32,8 @@ public sealed partial class MainViewModel : ObservableObject
     private readonly UninstallWorkflow _uninstall;
     private readonly HunterProbe _hunter;
     private readonly HistoryService _history;
+    private readonly IStartupRepository _startup;
+    private readonly IUsageHistory _usage;
     private readonly IFolderSizeCalculator _folderSizes;
     private readonly InstallLocationRules _locationRules;
     private readonly ILogger<MainViewModel> _logger;
@@ -51,6 +56,8 @@ public sealed partial class MainViewModel : ObservableObject
         UninstallWorkflow uninstall,
         HunterProbe hunter,
         HistoryService history,
+        IStartupRepository startup,
+        IUsageHistory usage,
         IFolderSizeCalculator folderSizes,
         InstallLocationRules locationRules,
         ILogger<MainViewModel> logger)
@@ -65,6 +72,8 @@ public sealed partial class MainViewModel : ObservableObject
         _uninstall = uninstall;
         _hunter = hunter;
         _history = history;
+        _startup = startup;
+        _usage = usage;
         _folderSizes = folderSizes;
         _locationRules = locationRules;
         _logger = logger;
@@ -270,6 +279,29 @@ public sealed partial class MainViewModel : ObservableObject
                 }
             }), cancellationToken);
 
+            // Versi 1.2: perkiraan terakhir dipakai (Prefetch/UserAssist) untuk label JARANG.
+            var usageTask = Task.Run(() =>
+            {
+                UsageIndex index = _usage.Load();
+                if (index.Count == 0)
+                {
+                    return;
+                }
+
+                DateOnly today = _clock.Today;
+                foreach (var item in ordered.Where(i => !i.Model.IsSystemComponent && i.Model.Source != ProgramSource.Store))
+                {
+                    cancellationToken.ThrowIfCancellationRequested();
+                    string? location = InstallLocationInference.WithInferredLocation(item.Model, _locationRules).InstallLocation;
+                    if (_locationRules.IsMeasurable(location)
+                        && index.LastUsed(_usage.ExecutablesIn(location!)) is { } lastUsed)
+                    {
+                        var date = DateOnly.FromDateTime(lastUsed.LocalDateTime);
+                        OnUi(() => item.ApplyLastUsed(date, today));
+                    }
+                }
+            }, cancellationToken);
+
             var toMeasure = items
                 .Where(i => !i.Model.IsSystemComponent
                             && i.Model.SizeBytes is null
@@ -292,6 +324,7 @@ public sealed partial class MainViewModel : ObservableObject
             }
 
             await iconTask;
+            await usageTask;
 
             OnUi(() =>
             {
@@ -433,6 +466,14 @@ public sealed partial class MainViewModel : ObservableObject
 
     [RelayCommand]
     private void AutoFix() => _dialogs.ShowNotYetAvailable(Strings.Get("Nav_AutoFix"));
+
+    /// <summary>Jendela "Program awal" (versi 1.2).</summary>
+    [RelayCommand]
+    private void Startup()
+    {
+        var viewModel = new StartupViewModel(_startup, _shell, AllModels, _icons, _logger);
+        new StartupWindow(viewModel) { Owner = System.Windows.Application.Current.MainWindow }.ShowDialog();
+    }
 
     [RelayCommand]
     private async Task HistoryAsync()

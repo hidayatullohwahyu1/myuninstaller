@@ -86,6 +86,11 @@ public sealed partial class ProgramItemViewModel : ObservableObject
                 parts.Add(Strings.Format("Info_Installed", IndonesianFormat.Date(date)));
             }
 
+            if (Model.LastUsed is { } lastUsed)
+            {
+                parts.Add(Strings.Format("Info_LastUsed", IndonesianFormat.Date(lastUsed)));
+            }
+
             return string.Join(" · ", parts);
         }
     }
@@ -98,7 +103,16 @@ public sealed partial class ProgramItemViewModel : ObservableObject
 
     public bool IsNew { get; }
 
-    public bool IsRarelyUsed { get; }
+    /// <summary>Label JARANG: terakhir dipakai 90 hari lalu atau lebih (hanya bila ada bukti pemakaian).</summary>
+    [ObservableProperty]
+    public partial bool IsRarelyUsed { get; private set; }
+
+    /// <summary>Menerapkan perkiraan terakhir dipakai dari Prefetch/UserAssist (versi 1.2).</summary>
+    public void ApplyLastUsed(DateOnly lastUsed, DateOnly today)
+    {
+        Model = Model with { LastUsed = lastUsed };
+        IsRarelyUsed = Model.IsRarelyUsed(today);
+    }
 
     /// <summary>Ikon program; Tahap 2 mengisi dari DisplayIcon. Null berarti pakai ubin pengganti.</summary>
     [ObservableProperty]
