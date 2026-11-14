@@ -134,6 +134,7 @@ public partial class App : Application
         builder.Services.AddSingleton<StartupMaintenance>();
         builder.Services.AddSingleton<HistoryService>();
         builder.Services.AddSingleton<InitialScan>();
+        builder.Services.AddSingleton<BrowserExtensionService>();
         builder.Services.AddSingleton<MainViewModel>();
         builder.Services.AddSingleton<MainWindow>();
 

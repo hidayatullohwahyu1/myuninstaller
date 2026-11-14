@@ -205,4 +205,13 @@ Pengaturan tampilan per pengguna di `%LocalAppData%\MyUninstaller\pengaturan.jso
      SHGetKnownFolderPath) + Prefetch (nama exe ≤ 29 karakter, waktu tulis terakhir; butuh admin). `UsageIndex`
      mengabaikan uninstaller/pembaru. Tanpa bukti pemakaian = TIDAK diberi label (riwayat Prefetch terbatas, jadi
      ketiadaan bukti bukan bukti tidak dipakai). Panel info menampilkan "terakhir dipakai …" bila diketahui.
-   - [ ] 1.3 Ekstensi browser (Chrome/Edge/Firefox).
+   - [x] 1.3 Ekstensi browser (tombol "Ekstensi browser" di panel kiri, `BrowserExtensionsWindow`).
+     `BrowserExtensionReader` membaca Chrome/Edge/Brave (`User Data\<profil>\Extensions\<id 32 huruf a–p>\<versi>`,
+     nama `__MSG_x__` dari `_locales`, status dari Secure Preferences/Preferences; bawaan location 5/10 disembunyikan,
+     nama profil dari Local State) dan Firefox (`extensions.json`, hanya type extension + location app-profile, path harus
+     di dalam folder profil). Parser murni di `Core/Browsers/ExtensionParsers`.
+     **Chromium TIDAK dihapus dari disk** (Secure Preferences ber-MAC; browser akan memasang ulang/menandai rusak):
+     aplikasi membuka `<chrome|edge|brave>://extensions/?id=<id>` dengan `--profile-directory` lewat
+     `DesktopShellLauncher` (IShellWindows → ShellExecute milik Explorer, jadi browser jalan TANPA hak admin), pengguna
+     klik Hapus di sana; bila browser tidak ditemukan, ID disalin. Firefox: ditolak bila firefox.exe berjalan, lalu .xpi
+     dikarantina lewat `SafeRemover` (sesi mode "Extension", bisa dibatalkan dari Riwayat).

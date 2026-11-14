@@ -1,6 +1,7 @@
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using MyUninstaller.Core.Abstractions;
+using MyUninstaller.Core.Browsers;
 using MyUninstaller.Core.Leftovers;
 using MyUninstaller.Core.Scanning;
 using MyUninstaller.Core.Startup;
@@ -9,6 +10,7 @@ using MyUninstaller.Core.Uninstall;
 using MyUninstaller.Core.Safety;
 using MyUninstaller.Infrastructure.Processes;
 using MyUninstaller.Infrastructure.Safety;
+using MyUninstaller.Infrastructure.Browsers;
 using MyUninstaller.Infrastructure.FileSystem;
 using MyUninstaller.Infrastructure.Leftovers;
 using MyUninstaller.Infrastructure.WindowsRegistry;
@@ -60,6 +62,10 @@ public static class ServiceCollectionExtensions
         // Program awal dan riwayat pemakaian (versi 1.2)
         services.AddSingleton<IStartupRepository, StartupRepository>();
         services.AddSingleton<IUsageHistory, UsageHistoryReader>();
+
+        // Ekstensi browser (versi 1.3)
+        services.AddSingleton<IBrowserExtensionReader, BrowserExtensionReader>();
+        services.AddSingleton<IUnelevatedLauncher, DesktopShellLauncher>();
 
         // Pemindai sisa (Tahap 5)
         services.AddSingleton<ILeftoverScanner, LeftoverScanner>();

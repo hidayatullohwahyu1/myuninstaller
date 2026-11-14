@@ -154,6 +154,8 @@
                     <TextBlock Style="{StaticResource GroupHeaderText}" Text="{loc:Tr Group_Tools}" />
                     <Button Style="{StaticResource NavButton}" Tag="{StaticResource Glyph.Power}"
                             Content="{loc:Tr Nav_Startup}" ToolTip="{loc:Tr Tooltip_Startup}" Command="{Binding StartupCommand}" />
+                    <Button Style="{StaticResource NavButton}" Tag="{StaticResource Glyph.Puzzle}"
+                            Content="{loc:Tr Nav_Extensions}" ToolTip="{loc:Tr Tooltip_Extensions}" Command="{Binding ExtensionsCommand}" />
                     <Button x:Name="CleanerNav" Style="{StaticResource NavButton}" Tag="{StaticResource Glyph.Broom}"
                             Content="{loc:Tr Nav_Cleaner}" IsEnabled="False" />
 

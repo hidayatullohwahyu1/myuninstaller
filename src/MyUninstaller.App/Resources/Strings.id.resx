@@ -325,6 +325,29 @@
   <data name="Tooltip_NotYetVersion" xml:space="preserve"><value>Tersedia di versi berikutnya</value></data>
   <data name="Info_LastUsed" xml:space="preserve"><value>terakhir dipakai {0}</value></data>
 
+  <!-- Ekstensi browser (versi 1.3) -->
+  <data name="Nav_Extensions" xml:space="preserve"><value>Ekstensi browser</value></data>
+  <data name="Tooltip_Extensions" xml:space="preserve"><value>Lihat dan hapus ekstensi Chrome, Edge, Brave, dan Firefox</value></data>
+  <data name="Extensions_Title" xml:space="preserve"><value>Ekstensi browser</value></data>
+  <data name="Extensions_Subtitle" xml:space="preserve"><value>Ekstensi Chrome, Edge, dan Brave dihapus lewat halaman ekstensi browser itu sendiri. Ekstensi Firefox dipindah ke karantina dan bisa dipulihkan dari Riwayat.</value></data>
+  <data name="Extensions_Summary" xml:space="preserve"><value>{0} ekstensi di {1} profil</value></data>
+  <data name="Extensions_Empty" xml:space="preserve"><value>Tidak ada ekstensi yang ditemukan.</value></data>
+  <data name="Extensions_Remove" xml:space="preserve"><value>Hapus ekstensi</value></data>
+  <data name="Extensions_OpenFolder" xml:space="preserve"><value>Buka folder</value></data>
+  <data name="Extensions_CopyId" xml:space="preserve"><value>Salin ID</value></data>
+  <data name="Extensions_IdCopied" xml:space="preserve"><value>ID ekstensi disalin.</value></data>
+  <data name="Extensions_Disabled" xml:space="preserve"><value>nonaktif</value></data>
+  <data name="Extensions_Profile" xml:space="preserve"><value>{0} · profil {1}</value></data>
+  <data name="Extensions_OpenedInBrowser" xml:space="preserve"><value>Halaman ekstensi "{0}" dibuka di {1}. Klik "Hapus" di sana, lalu tekan Segarkan.</value></data>
+  <data name="Extensions_BrowserNotFound" xml:space="preserve"><value>{0} tidak ditemukan. ID ekstensi disalin; buka halaman ekstensi browser dan hapus secara manual.</value></data>
+  <data name="Extensions_LaunchFailed" xml:space="preserve"><value>Browser tidak bisa dibuka sebagai pengguna biasa. ID ekstensi disalin; hapus lewat halaman ekstensi browser.</value></data>
+  <data name="Extensions_FirefoxRunning" xml:space="preserve"><value>Firefox sedang berjalan. Tutup Firefox dulu, lalu coba lagi.</value></data>
+  <data name="Extensions_ConfirmFirefox" xml:space="preserve"><value>Ekstensi "{0}" di profil Firefox "{1}" akan dipindah ke karantina. Firefox membersihkan daftarnya saat dibuka berikutnya. Ekstensi bisa dipulihkan dari Riwayat.</value></data>
+  <data name="Extensions_Removed" xml:space="preserve"><value>"{0}" dipindah ke karantina.</value></data>
+  <data name="Extensions_RemoveFailed" xml:space="preserve"><value>"{0}" tidak bisa dihapus: {1}</value></data>
+  <data name="Extensions_SessionTitle" xml:space="preserve"><value>Ekstensi Firefox: {0}</value></data>
+  <data name="SessionMode_Extension" xml:space="preserve"><value>Ekstensi browser</value></data>
+
   <!-- Keterangan aksi di jurnal (tampil di Riwayat) -->
   <data name="RestorePointResult_Created" xml:space="preserve"><value>Dibuat</value></data>
   <data name="RestorePointResult_Throttled" xml:space="preserve"><value>Ditolak Windows (batas satu per 24 jam)</value></data>

@@ -8,6 +8,7 @@ using MyUninstaller.App.Localization;
 using MyUninstaller.App.Services;
 using MyUninstaller.App.Views;
 using MyUninstaller.Core.Abstractions;
+using MyUninstaller.Core.Browsers;
 using MyUninstaller.Core.Formatting;
 using MyUninstaller.Core.Leftovers;
 using MyUninstaller.Core.Listing;
@@ -34,6 +35,8 @@ public sealed partial class MainViewModel : ObservableObject
     private readonly HistoryService _history;
     private readonly IStartupRepository _startup;
     private readonly IUsageHistory _usage;
+    private readonly IBrowserExtensionReader _extensions;
+    private readonly BrowserExtensionService _extensionService;
     private readonly IFolderSizeCalculator _folderSizes;
     private readonly InstallLocationRules _locationRules;
     private readonly ILogger<MainViewModel> _logger;
@@ -58,6 +61,8 @@ public sealed partial class MainViewModel : ObservableObject
         HistoryService history,
         IStartupRepository startup,
         IUsageHistory usage,
+        IBrowserExtensionReader extensions,
+        BrowserExtensionService extensionService,
         IFolderSizeCalculator folderSizes,
         InstallLocationRules locationRules,
         ILogger<MainViewModel> logger)
@@ -74,6 +79,8 @@ public sealed partial class MainViewModel : ObservableObject
         _history = history;
         _startup = startup;
         _usage = usage;
+        _extensions = extensions;
+        _extensionService = extensionService;
         _folderSizes = folderSizes;
         _locationRules = locationRules;
         _logger = logger;
@@ -473,6 +480,24 @@ public sealed partial class MainViewModel : ObservableObject
     {
         var viewModel = new StartupViewModel(_startup, _shell, AllModels, _icons, _logger);
         new StartupWindow(viewModel) { Owner = System.Windows.Application.Current.MainWindow }.ShowDialog();
+    }
+
+    /// <summary>Jendela "Ekstensi browser" (versi 1.3).</summary>
+    [RelayCommand]
+    private void Extensions()
+    {
+        var owner = System.Windows.Application.Current.MainWindow;
+        BrowserExtensionsWindow? window = null;
+        var viewModel = new BrowserExtensionsViewModel(_extensions, _extensionService, _shell,
+            confirmFirefox: (name, profile) => ChoiceDialog.Show(window, Strings.Get("Extensions_Remove"),
+                Strings.Format("Extensions_ConfirmFirefox", name, profile),
+            [
+                new ChoiceButton(Strings.Get("Common_Cancel"), ChoiceKind.Primary, IsDefault: true, IsCancel: true),
+                new ChoiceButton(Strings.Get("Extensions_Remove"), ChoiceKind.Danger),
+            ],
+            glyph: "") == 1);
+        window = new BrowserExtensionsWindow(viewModel) { Owner = owner };
+        window.ShowDialog();
     }
 
     [RelayCommand]

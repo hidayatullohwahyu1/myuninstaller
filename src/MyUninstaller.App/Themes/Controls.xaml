@@ -30,6 +30,7 @@
     <sys:String x:Key="Glyph.Close">&#xE894;</sys:String>
     <sys:String x:Key="Glyph.Settings">&#xE713;</sys:String>
     <sys:String x:Key="Glyph.Check">&#xE73E;</sys:String>
+    <sys:String x:Key="Glyph.Puzzle">&#xEA86;</sys:String>
     <sys:String x:Key="Glyph.Info">&#xE946;</sys:String>
     <sys:String x:Key="Glyph.Stop">&#xE71A;</sys:String>
 
