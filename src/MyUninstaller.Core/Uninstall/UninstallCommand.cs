@@ -36,7 +36,15 @@ public static partial class UninstallCommandBuilder
     /// Membuat perintah, atau null bila tidak ada cara menjalankan penghapus instalan
     /// (entri rusak: gunakan Hapus paksa).
     /// </summary>
-    public static UninstallCommand? Build(InstalledProgram program, bool silent, Func<string, bool> fileExists)
+    /// <param name="program">Program yang akan dihapus.</param>
+    /// <param name="silent">Minta mode senyap (dipakai bila ada cara senyap yang terdokumentasi).</param>
+    /// <param name="fileExists">Pemeriksa keberadaan berkas.</param>
+    /// <param name="detectKind">Opsional: mengenali NSIS/Inno dari isi exe untuk parameter senyapnya.</param>
+    public static UninstallCommand? Build(
+        InstalledProgram program,
+        bool silent,
+        Func<string, bool> fileExists,
+        Func<string, InstallerKind>? detectKind = null)
     {
         if (program.Source == ProgramSource.Store)
         {
@@ -74,11 +82,30 @@ public static partial class UninstallCommandBuilder
         }
 
         bool isSilent = usesQuietString;
-        if (silent && !usesQuietString && InnoSetupRegex().IsMatch(Path.GetFileName(file)))
+        if (silent && !usesQuietString)
         {
-            // Inno Setup (unins000.exe) punya parameter senyap yang terdokumentasi.
-            args = AppendArgs(args, "/VERYSILENT /SUPPRESSMSGBOXES /NORESTART");
-            isSilent = true;
+            // Nama unins000.exe sudah pasti Inno Setup; selain itu kenali dari isi berkas bila pendeteksi tersedia.
+            InstallerKind kind = InnoSetupRegex().IsMatch(Path.GetFileName(file))
+                ? InstallerKind.InnoSetup
+                : detectKind?.Invoke(file) ?? InstallerKind.Unknown;
+
+            switch (kind)
+            {
+                case InstallerKind.InnoSetup:
+                    args = AppendArgs(args, "/VERYSILENT /SUPPRESSMSGBOXES /NORESTART");
+                    isSilent = true;
+                    break;
+
+                // NSIS: /S peka huruf besar; jangan ditambah dua kali.
+                case InstallerKind.Nsis when !HasSwitch(args, "/S"):
+                    args = AppendArgs(args, "/S");
+                    isSilent = true;
+                    break;
+
+                case InstallerKind.Nsis:
+                    isSilent = true;
+                    break;
+            }
         }
 
         return new UninstallCommand(file, args, UninstallCommandKind.Executable, isSilent);
@@ -160,6 +187,9 @@ public static partial class UninstallCommandBuilder
         args = space < 0 ? string.Empty : commandLine[(space + 1)..].Trim();
         return file.Length > 0;
     }
+
+    private static bool HasSwitch(string args, string name) =>
+        args.Split(' ', StringSplitOptions.RemoveEmptyEntries).Any(a => a.Equals(name, StringComparison.Ordinal));
 
     private static string AppendArgs(string args, string extra) => string.IsNullOrWhiteSpace(args) ? extra : $"{args} {extra}";
 

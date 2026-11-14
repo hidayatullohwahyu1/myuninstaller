@@ -524,6 +524,37 @@
         </Style.Triggers>
     </Style>
 
+    <!-- ============ Kotak centang bertema dengan teks ============ -->
+    <Style x:Key="ThemedCheckBox" TargetType="CheckBox">
+        <Setter Property="Foreground" Value="{DynamicResource TextPrimaryBrush}" />
+        <Setter Property="Cursor" Value="Hand" />
+        <Setter Property="FocusVisualStyle" Value="{StaticResource FocusRing}" />
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="CheckBox">
+                    <StackPanel Orientation="Horizontal" Background="Transparent">
+                        <Border x:Name="Box" Width="18" Height="18" CornerRadius="4" BorderThickness="1.5" VerticalAlignment="Center"
+                                BorderBrush="{DynamicResource ScrollThumbHoverBrush}" Background="Transparent">
+                            <TextBlock x:Name="Mark" Style="{StaticResource GlyphText}" FontSize="11" HorizontalAlignment="Center"
+                                       Text="&#xE73E;" Foreground="{DynamicResource OnAccentBrush}" Visibility="Collapsed" />
+                        </Border>
+                        <ContentPresenter Margin="8,0,0,0" VerticalAlignment="Center" RecognizesAccessKey="False" />
+                    </StackPanel>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsChecked" Value="True">
+                            <Setter TargetName="Box" Property="Background" Value="{DynamicResource AccentBrush}" />
+                            <Setter TargetName="Box" Property="BorderBrush" Value="{DynamicResource AccentBrush}" />
+                            <Setter TargetName="Mark" Property="Visibility" Value="Visible" />
+                        </Trigger>
+                        <Trigger Property="IsEnabled" Value="False">
+                            <Setter Property="Opacity" Value="0.45" />
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
     <!-- ============ Kartu pilihan mode (RadioButton) — Content = judul, Tag = keterangan ============ -->
     <Style x:Key="ModeOption" TargetType="RadioButton">
         <Setter Property="Foreground" Value="{DynamicResource TextPrimaryBrush}" />

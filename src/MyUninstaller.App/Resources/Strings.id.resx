@@ -122,7 +122,7 @@
   <data name="Mode_Normal" xml:space="preserve"><value>Normal</value></data>
   <data name="Mode_Normal_Desc" xml:space="preserve"><value>Bawaan, lalu sisa Aman dan Mungkin ditampilkan untuk dicentang. Pilihan seimbang.</value></data>
   <data name="Mode_Super" xml:space="preserve"><value>Super</value></data>
-  <data name="Mode_Super_Desc" xml:space="preserve"><value>Normal ditambah pemindaian mendalam: CLSID, layanan, tugas terjadwal, firewall, dan pencarian nama di seluruh drive.</value></data>
+  <data name="Mode_Super_Desc" xml:space="preserve"><value>Normal ditambah pemindaian mendalam: layanan, tugas terjadwal, CLSID, dan pencarian nama di seluruh drive.</value></data>
   <data name="Mode_Force" xml:space="preserve"><value>Hapus paksa</value></data>
   <data name="Mode_Force_Desc" xml:space="preserve"><value>Lewati penghapus instalan program, langsung hapus berkas dan registri. Untuk penghapus instalan yang rusak atau hilang.</value></data>
   <data name="Mode_RecommendedTag" xml:space="preserve"><value>disarankan</value></data>
@@ -287,6 +287,20 @@
   <data name="ActionStatus_Failed" xml:space="preserve"><value>Gagal</value></data>
   <data name="ActionStatus_Skipped" xml:space="preserve"><value>Dilewati</value></data>
   <data name="ActionStatus_Restored" xml:space="preserve"><value>Dipulihkan</value></data>
+
+  <!-- Uninstall massal & mode senyap (versi 1.1) -->
+  <data name="Mode_Silent" xml:space="preserve"><value>Mode senyap bila didukung ({0} dari {1} program)</value></data>
+  <data name="Mode_SilentHint" xml:space="preserve"><value>Program tanpa mode senyap tetap menampilkan jendela penghapus instalannya.</value></data>
+  <data name="Mode_SilentNone" xml:space="preserve"><value>Mode senyap tidak tersedia untuk program ini.</value></data>
+
+  <!-- Peringatan keras: driver, runtime bersama, komponen sistem -->
+  <data name="Risk_Title" xml:space="preserve"><value>Peringatan: program penting</value></data>
+  <data name="Risk_Message" xml:space="preserve"><value>Program berikut adalah driver, runtime yang dipakai banyak program, atau komponen sistem Windows. Menghapusnya bisa membuat perangkat keras (misalnya touchpad atau printer) atau program lain berhenti bekerja.</value></data>
+  <data name="Risk_Driver" xml:space="preserve"><value>driver perangkat keras</value></data>
+  <data name="Risk_SharedRuntime" xml:space="preserve"><value>runtime bersama</value></data>
+  <data name="Risk_SystemComponent" xml:space="preserve"><value>komponen sistem Windows</value></data>
+  <data name="Risk_Continue" xml:space="preserve"><value>Tetap hapus</value></data>
+  <data name="Risk_Skip" xml:space="preserve"><value>Lewati yang berisiko</value></data>
 
   <!-- Keterangan aksi di jurnal (tampil di Riwayat) -->
   <data name="RestorePointResult_Created" xml:space="preserve"><value>Dibuat</value></data>

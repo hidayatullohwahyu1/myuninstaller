@@ -45,6 +45,15 @@ public sealed class UninstallWorkflow(
 
         Window? owner = Application.Current?.MainWindow;
         UninstallMode mode;
+        bool silent = false;
+
+        // PRD: driver, runtime bersama, dan komponen sistem hanya dihapus setelah peringatan keras.
+        if (ConfirmRisky(owner, programs) is not { } confirmed)
+        {
+            return false;
+        }
+
+        programs = confirmed;
 
         if (forceMode)
         {
@@ -56,13 +65,15 @@ public sealed class UninstallWorkflow(
                 ? Strings.Format("Mode_HeaderSingle", programs[0].DisplayName)
                 : Strings.Format("Mode_HeaderMany", programs.Count);
 
-            var dialog = new UninstallModeDialog(header, settingsStore.Load().LastUninstallMode) { Owner = owner };
+            int silentCapable = programs.Count(p => runner.PlanCommand(p.Model, silent: true) is { IsSilent: true });
+            var dialog = new UninstallModeDialog(header, settingsStore.Load().LastUninstallMode, silentCapable, programs.Count) { Owner = owner };
             if (dialog.ShowDialog() != true)
             {
                 return false;
             }
 
             mode = dialog.SelectedMode;
+            silent = dialog.SilentRequested;
             if (mode != UninstallMode.Force)
             {
                 SaveLastMode(mode);
@@ -94,7 +105,10 @@ public sealed class UninstallWorkflow(
             services,
             askRunning: (name, running) => AskRunning(window, name, running),
             confirmStop: () => ConfirmStop(window),
-            logger);
+            logger)
+        {
+            Silent = silent,
+        };
 
         window = new UninstallProgressWindow(session) { Owner = owner };
         window.ShowDialog();
@@ -134,6 +148,41 @@ public sealed class UninstallWorkflow(
 
         window = new LeftoverResultsWindow(viewModel) { Owner = owner };
         window.ShowDialog();
+    }
+
+    /// <summary>
+    /// Peringatan keras untuk driver/runtime bersama/komponen sistem. Mengembalikan daftar program yang jadi dihapus
+    /// (semua, atau tanpa yang berisiko), atau null bila dibatalkan. Tombol bawaan = Batal; "Tetap hapus" merah.
+    /// </summary>
+    private static IReadOnlyList<ProgramItemViewModel>? ConfirmRisky(Window? owner, IReadOnlyList<ProgramItemViewModel> programs)
+    {
+        var risky = programs.Select(p => (Program: p, Risk: ProgramRiskRules.Classify(p.Model)))
+            .Where(r => r.Risk != ProgramRisk.None)
+            .ToList();
+        if (risky.Count == 0)
+        {
+            return programs;
+        }
+
+        var safe = programs.Except(risky.Select(r => r.Program)).ToList();
+        var buttons = new List<ChoiceButton> { new(Strings.Get("Common_Cancel"), ChoiceKind.Primary, IsDefault: true, IsCancel: true) };
+        if (safe.Count > 0)
+        {
+            buttons.Add(new ChoiceButton(Strings.Get("Risk_Skip")));
+        }
+
+        buttons.Add(new ChoiceButton(Strings.Get("Risk_Continue"), ChoiceKind.Danger));
+
+        int choice = ChoiceDialog.Show(owner, Strings.Get("Risk_Title"), Strings.Get("Risk_Message"), buttons,
+            [.. risky.Select(r => $"• {r.Program.DisplayName}  ({Strings.Get("Risk_" + r.Risk)})")],
+            glyph: "");
+
+        return buttons.ElementAtOrDefault(choice)?.Label switch
+        {
+            var label when label == Strings.Get("Risk_Continue") => programs,
+            var label when label == Strings.Get("Risk_Skip") => safe,
+            _ => null,
+        };
     }
 
     /// <summary>Entri rusak: tidak ada perintah hapus instalan, atau berkas uninstaller-nya hilang.</summary>

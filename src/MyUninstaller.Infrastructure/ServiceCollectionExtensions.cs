@@ -40,6 +40,7 @@ public static class ServiceCollectionExtensions
         services.AddSingleton<IStorePackageRemover, StorePackageRemover>();
         services.AddSingleton<IInstallStateProbe, InstallStateProbe>();
         services.AddSingleton<IProcessInspector, ProcessInspector>();
+        services.AddSingleton<IInstallerKindDetector, InstallerKindDetector>();
         services.AddSingleton<UninstallRunner>();
 
         // Keamanan (Tahap 4): daftar lindung, jurnal, karantina, cadangan registri, titik pemulihan

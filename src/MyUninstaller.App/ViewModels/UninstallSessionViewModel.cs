@@ -131,6 +131,9 @@ public sealed partial class UninstallSessionViewModel : ObservableObject
 
     public UninstallMode Mode { get; }
 
+    /// <summary>Jalankan uninstaller dalam mode senyap bila didukung (uninstall massal, versi 1.1).</summary>
+    public bool Silent { get; init; }
+
     public ObservableCollection<SessionItemViewModel> Items { get; }
 
     public ObservableCollection<SessionStepViewModel> Steps { get; }
@@ -347,7 +350,7 @@ public sealed partial class UninstallSessionViewModel : ObservableObject
         UninstallResult result;
         try
         {
-            result = await _services.Runner.RunAsync(item.Program.Model, silent: false, cts.Token);
+            result = await _services.Runner.RunAsync(item.Program.Model, silent: Silent, cts.Token);
         }
         catch
         {

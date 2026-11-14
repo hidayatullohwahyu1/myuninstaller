@@ -186,3 +186,14 @@ Pengaturan tampilan per pengguna di `%LocalAppData%\MyUninstaller\pengaturan.jso
    Pemindaian pertama dimulai sejajar dengan pembuatan jendela (`InitialScan`).
    Belum: uji di VM Windows 10 22H2/11 24H2 (kriteria penerimaan PRD), pengecualian Windows Defender tidak
    dipasang otomatis (mengubah pengaturan keamanan — lakukan manual bila perlu).
+8. Versi 1.1–1.3 (berjalan):
+   - [x] 1.1 Uninstall massal: antrean/sisa gabungan sudah ada sejak Tahap 3/5; ditambah **mode senyap** (kotak di
+     dialog mode, bawaan tercentang bila >1 program, menyebut "n dari m program" yang mendukung).
+     `InstallerKindDetector` mengenali NSIS (`/S`) dan Inno (`/VERYSILENT ...`) dari penanda di isi exe (hanya baca,
+     maks 8 MB); urutan: QuietUninstallString → MSI `/qn` → Inno (unins000.exe) → deteksi isi. Program tanpa cara
+     senyap terdokumentasi tetap interaktif (TIDAK menebak parameter).
+     **Peringatan keras** (`ProgramRiskRules`, aturan PRD 1.0 yang sempat terlewat): driver, runtime bersama
+     (.NET, VC++, WebView2, ...), komponen sistem → dialog Batal (bawaan) / Lewati yang berisiko / Tetap hapus (merah).
+     Contoh nyata di laptop pengembang: "Windows Driver Package - ASUS (AsusPTPDrv)" = driver touchpad.
+   - [ ] 1.2 Program awal (Run, folder Startup, Task Scheduler) + penanda "jarang dipakai" (Prefetch/UserAssist).
+   - [ ] 1.3 Ekstensi browser (Chrome/Edge/Firefox).

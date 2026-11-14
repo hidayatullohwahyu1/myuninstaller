@@ -14,6 +14,13 @@
                     IsDefault="True" MinWidth="110" Margin="8,0,0,0" Click="Continue_Click" />
         </StackPanel>
 
+        <!-- Mode senyap (versi 1.1): bawaan dicentang untuk uninstall massal. -->
+        <StackPanel DockPanel.Dock="Bottom" Margin="2,10,0,0">
+            <CheckBox x:Name="SilentCheck" x:FieldModifier="public" Style="{StaticResource ThemedCheckBox}" />
+            <TextBlock x:Name="SilentHint" x:FieldModifier="public" Margin="26,2,0,0" FontSize="12" TextWrapping="Wrap"
+                       Foreground="{DynamicResource TextSecondaryBrush}" />
+        </StackPanel>
+
         <StackPanel DockPanel.Dock="Top" Margin="0,0,0,14">
             <TextBlock x:Name="HeaderText" FontFamily="{StaticResource UiDisplayFont}" FontSize="18" FontWeight="SemiBold"
                        TextTrimming="CharacterEllipsis" />

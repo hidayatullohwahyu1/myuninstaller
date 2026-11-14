@@ -45,7 +45,8 @@ public sealed class UninstallRunner(
     IProcessRunner processRunner,
     IStorePackageRemover storeRemover,
     IInstallStateProbe probe,
-    InstallLocationRules locationRules)
+    InstallLocationRules locationRules,
+    IInstallerKindDetector? kindDetector = null)
 {
     /// <summary>Batas waktu satu penghapus instalan (PRD: 30 menit).</summary>
     public static readonly TimeSpan Timeout = TimeSpan.FromMinutes(30);
@@ -54,7 +55,8 @@ public sealed class UninstallRunner(
     public static readonly TimeSpan WaitingForInputHint = TimeSpan.FromMinutes(2);
 
     public UninstallCommand? PlanCommand(InstalledProgram program, bool silent) =>
-        UninstallCommandBuilder.Build(program, silent, probe.FileExists);
+        UninstallCommandBuilder.Build(program, silent, probe.FileExists,
+            kindDetector is null ? null : path => probe.FileExists(path) ? kindDetector.Detect(path) : InstallerKind.Unknown);
 
     public async Task<UninstallResult> RunAsync(InstalledProgram program, bool silent, CancellationToken cancellationToken)
     {
