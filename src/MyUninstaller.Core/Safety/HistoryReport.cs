@@ -24,6 +24,7 @@ public static class HistoryReport
         JournalActionKind.DeleteRegistryValue,
         JournalActionKind.DeleteService,
         JournalActionKind.DeleteScheduledTask,
+        JournalActionKind.EditPathVariable,
     ];
 
     /// <param name="actions">Aksi sesi.</param>
@@ -34,7 +35,7 @@ public static class HistoryReport
 
         return new SessionSummary(
             Paths: actions.Count(a => a.Kind == JournalActionKind.QuarantinePath && Done(a)),
-            RegistryItems: actions.Count(a => a.Kind is JournalActionKind.DeleteRegistryKey or JournalActionKind.DeleteRegistryValue && Done(a)),
+            RegistryItems: actions.Count(a => a.Kind is JournalActionKind.DeleteRegistryKey or JournalActionKind.DeleteRegistryValue or JournalActionKind.EditPathVariable && Done(a)),
             ServicesAndTasks: actions.Count(a => a.Kind is JournalActionKind.DeleteService or JournalActionKind.DeleteScheduledTask && Done(a)),
             Uninstallers: actions.Count(a => a.Kind == JournalActionKind.RunUninstaller),
             Failed: actions.Count(a => a.Status == JournalActionStatus.Failed),

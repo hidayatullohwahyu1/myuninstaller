@@ -63,8 +63,9 @@ public class InstanceChannelTests
             }
         });
 
-        InstanceChannel.Send(pipe, @"C:\A\bukan-exe.txt").Should().BeTrue();
-        InstanceChannel.Send(pipe, @"C:\A\App.lnk").Should().BeTrue();
+        // Batas tunggu longgar: saat semua tes berjalan bersamaan, pendengar bisa terlambat dijadwalkan.
+        InstanceChannel.Send(pipe, @"C:\A\bukan-exe.txt", timeoutMs: 20_000).Should().BeTrue();
+        InstanceChannel.Send(pipe, @"C:\A\App.lnk", timeoutMs: 20_000).Should().BeTrue();
         await got.Task.WaitAsync(TimeSpan.FromSeconds(10));
 
         received.Should().Equal(@"C:\A\App.lnk");

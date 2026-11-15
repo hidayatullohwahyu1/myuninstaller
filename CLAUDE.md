@@ -245,3 +245,34 @@ Pengaturan tampilan per pengguna di `%LocalAppData%\MyUninstaller\pengaturan.jso
      `TraceAwareLeftoverScanner` membungkus `LeftoverScanner` (DI): benda jejak yang masih ada → bukti
      `RecordedAtInstall` (skor 92, Aman), KECUALI di dalam/memuat folder program lain, kunci Uninstall program lain,
      atau bernama sama dengan penerbit/nama program lain yang masih terpasang. SafeRemover tetap mengecek daftar lindung.
+10. [x] Perbaikan setelah audit (15 November 2026; diukur di laptop ini, build rilis, tanpa admin):
+   - **Start-up**: daftar dimuat di `ContentRendered` (bukan `Loaded`, yang berjalan di dalam `Show()` sehingga jendela
+     menunggu 434 baris). Layanan berat (`UninstallWorkflow`, `HistoryService`, `BrowserExtensionService`,
+     `PortableProgramService` → jurnal SQLite, karantina) disuntik sebagai `Lazy<T>` (`LazyService<>` di App.xaml.cs).
+     Overlay "Memuat daftar program…" (`IsFirstLoad`). Hasil: jendela terlihat 2,6–3,2 detik (sebelumnya 3,0–6,6),
+     semua kerja latar selesai ±4,5 detik lalu CPU 0%. Saat diperkecil CPU 0,02 dtk/15 dtk (tidak ada loop latar).
+   - **Kisi ikon besar**: `Controls/VirtualizingTilePanel` (slot 118×114) menggantikan WrapPanel yang membuat SEMUA
+     ubin; hanya ubin terlihat + 1 baris cadangan yang dibuat. `BringIndexIntoView` dipakai ScrollIntoView.
+     Jebakan: akses `InternalChildren` dulu sebelum `ItemContainerGenerator` (kalau tidak, null).
+   - Ikon komponen sistem (±300, tersembunyi bawaan) baru dimuat saat opsi "Komponen sistem" dinyalakan; 2 utas.
+   - **Cache ukuran folder** `%LocalAppData%\MyUninstaller\ukuran-folder.json` (`CachedFolderSizes`, aturan di
+     `FolderSizeCacheRules`: berlaku bila waktu ubah folder sama dan umur < 7 hari). HANYA untuk daftar utama;
+     pemindai sisa selalu menghitung langsung (ukuran berubah setelah uninstall).
+   - Kolom Nama tabel rincian mengisi sisa lebar (`FitNameColumn`), tidak ada gulir horizontal.
+   - Tombol placeholder "Perbaikan otomatis" dan "Pembersih" (serta `ShowNotYetAvailable`) dibuang: JANGAN menaruh
+     tombol fitur yang belum ada di antarmuka.
+   - **Sisa baru (mode Normal)**: asosiasi berkas — ProgID dan `Classes\Applications\<exe>` yang perintah shell/ikonnya
+     menunjuk ke folder program, plus nilai ProgID itu di `.ext\OpenWithProgids`. Kunci `.ext`, kelas inti Windows
+     (`ProtectedRegistryKeys.IsProtectedClassName`: exefile, lnkfile, txtfile, *, Directory, ...), ProgID `Microsoft.`/
+     `Windows.`/`AppX`/`ms-` tidak pernah dihapus. **PATH pengguna**: jenis sisa `PathEntry` → `SafeRemover` membuang
+     SATU entri dari `HKCU\Environment\Path` (ekspor .reg seluruh kunci dulu, jenis REG_EXPAND_SZ dipertahankan,
+     WM_SETTINGCHANGE "Environment"; jurnal `EditPathVariable`, Batalkan = impor .reg). PATH sistem tetap tidak
+     disentuh (ada di HKLM\SYSTEM\CurrentControlSet\Control). Entri yang menunjuk ke folder terlindung ditolak.
+     Masih belum: aturan firewall, ekstensi menu Explorer (shellex), folder data yang namanya beda dari nama program
+     (mis. VS Code → AppData\Code; gunakan Pantau instalasi).
+   - **Tes**: kelas dengan [StaFact] masuk koleksi `WpfCollection` (tidak paralel; `Application.Resources` bersama
+     rusak bila diakses dari beberapa utas STA — ini penyebab kegagalan acak tes jendela sebelumnya), tes batas waktu di
+     `TimingCollection`. Kelas tes WPF baru WAJIB diberi `[Collection(WpfCollection.Name)]`.
+   - Mengukur aplikasi sungguhan: jalankan `artifacts\publish\MyUninstaller.exe` dengan `__COMPAT_LAYER=RunAsInvoker`,
+     ambil gambar HANYA jendela aplikasi (`PrintWindow`), dan pastikan pengguna tidak sedang memakai jendela itu
+     (`GetLastInputInfo`) atau ukur saat jendela diperkecil. Satu instance saja (mutex): tutup instance lama dulu.

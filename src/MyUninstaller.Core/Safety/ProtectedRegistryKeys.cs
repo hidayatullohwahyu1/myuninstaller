@@ -61,8 +61,77 @@ public static class ProtectedRegistryKeys
         }
 
         string key = Normalize(keyPath);
-        return !ValueContainers.Any(c => key.Equals(c, StringComparison.OrdinalIgnoreCase)) && IsProtected(keyPath);
+        return !ValueContainers.Any(c => key.Equals(c, StringComparison.OrdinalIgnoreCase))
+               && !IsOpenWithProgidsKey(key)
+               && IsProtected(keyPath);
     }
+
+    // ---------- Asosiasi berkas (Classes) ----------
+
+    private static readonly string[] ClassesRoots =
+    [
+        @"HKEY_LOCAL_MACHINE\SOFTWARE\Classes",
+        @"HKEY_CURRENT_USER\Software\Classes",
+    ];
+
+    // Kelas inti Windows dan wadah di Classes: tidak pernah dihapus walau tampak menunjuk ke folder program.
+    private static readonly HashSet<string> CoreClasses = new(StringComparer.OrdinalIgnoreCase)
+    {
+        "*", "AllFilesystemObjects", "Applications", "AppID", "CLSID", "Directory", "Drive", "Folder", "Interface",
+        "Local Settings", "MIME", "Network", "Printers", "SystemFileAssociations", "TypeLib", "Unknown", "WOW6432Node",
+        "exefile", "lnkfile", "batfile", "cmdfile", "comfile", "piffile", "regfile", "scrfile", "txtfile", "htmlfile",
+        "inifile", "dllfile", "sysfile", "mscfile", "Msi.Package", "Msi.Patch", "http", "https", "mailto", "ftp",
+        "InternetShortcut", "CompressedFolder", "SearchFolder", "LibraryFolder", "DesktopBackground",
+    };
+
+    private static readonly string[] ProtectedClassPrefixes = ["Microsoft.", "Windows.", "AppX", "ms-", "MSEdge", "Shell."];
+
+    /// <summary>
+    /// Entri asosiasi berkas yang BOLEH dihapus: tepat satu tingkat di bawah Classes (ProgID) atau di bawah
+    /// Classes\Applications (aplikasi "Buka dengan"). Ekstensi (.txt), kelas inti Windows, dan ProgID milik
+    /// Microsoft/AppX tidak pernah boleh. Pemindai hanya mengusulkannya bila perintahnya menunjuk ke folder program.
+    /// </summary>
+    public static bool IsAllowedClassEntry(string keyPath)
+    {
+        string key = Normalize(keyPath);
+        foreach (string root in ClassesRoots)
+        {
+            foreach (string container in new[] { root, root + @"\Applications" })
+            {
+                if (!key.StartsWith(container + @"\", StringComparison.OrdinalIgnoreCase))
+                {
+                    continue;
+                }
+
+                string name = key[(container.Length + 1)..];
+                if (name.Contains('\\'))
+                {
+                    continue;
+                }
+
+                return !IsProtectedClassName(name);
+            }
+        }
+
+        return false;
+    }
+
+    /// <summary>Nama kelas yang tidak pernah boleh dihapus: ekstensi, kelas inti Windows, ProgID Microsoft/AppX.</summary>
+    public static bool IsProtectedClassName(string name) =>
+        name.Length == 0
+        || name.StartsWith('.')
+        || CoreClasses.Contains(name)
+        || ProtectedClassPrefixes.Any(p => name.StartsWith(p, StringComparison.OrdinalIgnoreCase));
+
+    /// <summary>Classes\.ext\OpenWithProgids: nilai ProgID program yang dihapus boleh dibuang satu per satu.</summary>
+    private static bool IsOpenWithProgidsKey(string normalizedKey) =>
+        ClassesRoots.Any(root => normalizedKey.StartsWith(root + @"\.", StringComparison.OrdinalIgnoreCase)
+                                 && normalizedKey.EndsWith(@"\OpenWithProgids", StringComparison.OrdinalIgnoreCase)
+                                 && normalizedKey[(root.Length + 1)..^@"\OpenWithProgids".Length].IndexOf('\\') < 0);
+
+    /// <summary>Satu-satunya kunci yang nilai PATH-nya boleh disunting: PATH pengguna (HKCU\Environment).</summary>
+    public static bool IsEditablePathVariable(string? keyPath) =>
+        keyPath is not null && Normalize(keyPath).Equals(@"HKEY_CURRENT_USER\Environment", StringComparison.OrdinalIgnoreCase);
 
     // Wadah: kunci itu sendiri tidak boleh dihapus, subkunci programnya boleh.
     private static readonly string[] Containers =
@@ -104,6 +173,11 @@ public static class ProtectedRegistryKeys
             {
                 return false;
             }
+        }
+
+        if (IsAllowedClassEntry(key))
+        {
+            return false;
         }
 
         foreach (string tree in ForbiddenTrees)

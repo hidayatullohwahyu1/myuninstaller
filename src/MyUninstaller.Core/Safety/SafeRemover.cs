@@ -16,6 +16,12 @@ public enum RemovalTargetKind
 
     /// <summary>Tugas terjadwal. Location = path tugas, misalnya \Vendor\Updater.</summary>
     ScheduledTask,
+
+    /// <summary>
+    /// Satu entri PATH pengguna. Location = HKEY_CURRENT_USER\Environment, ValueName = entri (apa adanya).
+    /// Hanya PATH pengguna; PATH sistem ada di HKLM\SYSTEM\CurrentControlSet\Control yang tidak pernah disentuh.
+    /// </summary>
+    PathEntry,
 }
 
 /// <summary>Satu hal yang akan dihapus (lewat karantina/cadangan).</summary>
@@ -108,6 +114,7 @@ public sealed class SafeRemover(
                     RemovalTargetKind.RegistryKey => RemoveRegistryKey(sessionId, target),
                     RemovalTargetKind.RegistryValue => RemoveRegistryValue(sessionId, target),
                     RemovalTargetKind.Service => RemoveService(sessionId, target),
+                    RemovalTargetKind.PathEntry => RemovePathEntry(sessionId, target),
                     _ => RemoveTask(sessionId, target),
                 };
             }
@@ -207,6 +214,38 @@ public sealed class SafeRemover(
         bool deleted = registry.DeleteValue(target.Location, target.ValueName);
         journal.Complete(actionId, deleted ? JournalActionStatus.Done : JournalActionStatus.Failed, null, backup);
         return new RemovalResult(target, deleted ? RemovalStatus.Removed : RemovalStatus.Failed, 0);
+    }
+
+    private RemovalResult RemovePathEntry(string sessionId, RemovalTarget target)
+    {
+        // Entri yang menunjuk ke folder terlindung (mis. C:\Windows\System32) tidak pernah dibuang.
+        if (target.ValueName is not { Length: > 0 } entry
+            || !ProtectedRegistryKeys.IsEditablePathVariable(target.Location)
+            || protectedPaths.IsProtected(PathVariableRules.Expand(entry)))
+        {
+            return new RemovalResult(target, RemovalStatus.Protected, 0);
+        }
+
+        string? current = registry.ReadRawString(target.Location, PathVariableRules.ValueName);
+        string? updated = current is null ? null : PathVariableRules.Without(current, entry);
+        if (updated is null)
+        {
+            return new RemovalResult(target, RemovalStatus.Missing, 0);
+        }
+
+        long actionId = journal.LogPending(sessionId, JournalActionKind.EditPathVariable, $@"{target.Location}\{PathVariableRules.ValueName}: {entry}");
+
+        // Cadangan seluruh HKCU\Environment: Batalkan = impor ulang nilai PATH lama.
+        string? backup = registry.Export(sessionId, target.Location);
+        if (backup is null)
+        {
+            journal.Complete(actionId, JournalActionStatus.Failed, "Ekspor .reg gagal; PATH tidak diubah.");
+            return new RemovalResult(target, RemovalStatus.Failed, 0, "Ekspor .reg gagal");
+        }
+
+        bool written = registry.WriteRawString(target.Location, PathVariableRules.ValueName, updated);
+        journal.Complete(actionId, written ? JournalActionStatus.Done : JournalActionStatus.Failed, null, backup);
+        return new RemovalResult(target, written ? RemovalStatus.Removed : RemovalStatus.Failed, 0);
     }
 
     private RemovalResult RemoveService(string sessionId, RemovalTarget target)

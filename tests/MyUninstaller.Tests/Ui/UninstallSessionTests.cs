@@ -1,4 +1,4 @@
-using System.Windows;
+﻿using System.Windows;
 using System.Windows.Media;
 using Microsoft.Extensions.Logging.Abstractions;
 using MyUninstaller.App.Services;
@@ -11,6 +11,7 @@ using MyUninstaller.Core.Uninstall;
 
 namespace MyUninstaller.Tests.Ui;
 
+[Collection(WpfCollection.Name)]
 public class UninstallSessionTests
 {
     private sealed class FakeRunner : IProcessRunner
@@ -271,6 +272,7 @@ public class UninstallSessionTests
     }
 }
 
+[Collection(WpfCollection.Name)]
 /// <summary>Memastikan XAML jendela baru bisa dimuat dengan sumber daya tema aplikasi.</summary>
 public class WindowXamlTests
 {

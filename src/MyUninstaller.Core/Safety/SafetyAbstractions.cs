@@ -21,6 +21,9 @@ public enum JournalActionKind
 
     /// <summary>Tugas terjadwal dihapus. Target = path tugas, BackupPath = berkas XML.</summary>
     DeleteScheduledTask,
+
+    /// <summary>Satu entri dibuang dari PATH pengguna. BackupPath = .reg HKCU\Environment sebelum diubah.</summary>
+    EditPathVariable,
 }
 
 /// <summary>Status aksi di jurnal.</summary>
@@ -142,6 +145,12 @@ public interface IRegistryBackupService
 
     /// <summary>Menghapus satu nilai. Hanya dipanggil setelah kunci induk diekspor.</summary>
     bool DeleteValue(string keyPath, string valueName);
+
+    /// <summary>Nilai string apa adanya (variabel %...% tidak diperluas), atau null.</summary>
+    string? ReadRawString(string keyPath, string valueName) => null;
+
+    /// <summary>Menulis ulang nilai string dengan jenis nilai yang sama. Hanya dipanggil setelah kunci diekspor.</summary>
+    bool WriteRawString(string keyPath, string valueName, string value) => false;
 }
 
 public enum RestorePointStatus

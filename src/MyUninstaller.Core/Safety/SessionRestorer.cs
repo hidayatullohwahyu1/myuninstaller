@@ -33,6 +33,7 @@ public sealed class SessionRestorer(
 
                     // Layanan: kunci layanan diimpor ulang; Windows mengenalinya lagi setelah mulai ulang.
                     JournalActionKind.DeleteRegistryKey or JournalActionKind.DeleteRegistryValue or JournalActionKind.DeleteService
+                        or JournalActionKind.EditPathVariable
                         => registry.Import(action.BackupPath),
                     JournalActionKind.DeleteScheduledTask => tasks?.Import(action.BackupPath, action.Target) ?? false,
                     _ => true,

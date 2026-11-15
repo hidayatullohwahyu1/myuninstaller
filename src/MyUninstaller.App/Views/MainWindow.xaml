@@ -1,9 +1,10 @@
-<Window x:Class="MyUninstaller.App.Views.MainWindow"
+﻿<Window x:Class="MyUninstaller.App.Views.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:loc="clr-namespace:MyUninstaller.App.Localization"
+        xmlns:controls="clr-namespace:MyUninstaller.App.Controls"
         xmlns:vm="clr-namespace:MyUninstaller.App.ViewModels"
         xmlns:conv="clr-namespace:MyUninstaller.App.Converters"
         xmlns:settings="clr-namespace:MyUninstaller.Core.Settings;assembly=MyUninstaller.Core"
@@ -148,8 +149,6 @@
                             ToolTip="{loc:Tr Tooltip_Hunter}" Command="{Binding HunterModeCommand}" />
                     <Button Style="{StaticResource NavButton}" Tag="{StaticResource Glyph.Monitor}" Content="{loc:Tr Nav_Monitor}"
                             ToolTip="{loc:Tr Tooltip_Monitor}" Command="{Binding InstallMonitorCommand}" />
-                    <Button Style="{StaticResource NavButton}" Tag="{StaticResource Glyph.Repair}" Content="{loc:Tr Nav_AutoFix}"
-                            ToolTip="{loc:Tr Tooltip_AutoFix}" Command="{Binding AutoFixCommand}" />
                     <Button Style="{StaticResource NavButton}" Tag="{StaticResource Glyph.History}" Content="{loc:Tr Nav_History}"
                             ToolTip="{loc:Tr Tooltip_History}" Command="{Binding HistoryCommand}" />
 
@@ -162,8 +161,6 @@
                             Content="{loc:Tr Nav_Portable}" ToolTip="{loc:Tr Tooltip_Portable}" Command="{Binding PortableCommand}" />
                     <Button Style="{StaticResource NavButton}" Tag="{StaticResource Glyph.Download}"
                             Content="{loc:Tr Nav_Winget}" ToolTip="{loc:Tr Tooltip_Winget}" Command="{Binding WingetCommand}" />
-                    <Button x:Name="CleanerNav" Style="{StaticResource NavButton}" Tag="{StaticResource Glyph.Broom}"
-                            Content="{loc:Tr Nav_Cleaner}" IsEnabled="False" />
 
                     <TextBlock Style="{StaticResource GroupHeaderText}" Text="{loc:Tr Group_View}" />
                     <RadioButton Style="{StaticResource NavButton}" Tag="{StaticResource Glyph.Grid}" Content="{loc:Tr View_Icons}"
@@ -206,7 +203,7 @@
                      ItemsSource="{Binding ProgramsView}" SelectedItem="{Binding SelectedProgram}"
                      SelectionMode="Extended" ItemTemplate="{StaticResource ProgramTileTemplate}"
                      ItemContainerStyle="{StaticResource ProgramTileItem}"
-                     ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+                     ScrollViewer.HorizontalScrollBarVisibility="Disabled" ScrollViewer.CanContentScroll="True"
                      Tag="{Binding}" ContextMenu="{StaticResource ProgramContextMenu}"
                      SelectionChanged="ProgramList_SelectionChanged" MouseDoubleClick="ProgramList_MouseDoubleClick"
                      Visibility="{Binding IsIconView, Converter={StaticResource BoolToVisibility}}">
@@ -216,7 +213,8 @@
                 </ListBox.InputBindings>
                 <ListBox.ItemsPanel>
                     <ItemsPanelTemplate>
-                        <WrapPanel />
+                        <!-- Bervirtualisasi: hanya ubin yang terlihat yang dibuat. Slot = ubin 112×108 + margin 3. -->
+                        <controls:VirtualizingTilePanel ItemWidth="118" ItemHeight="114" />
                     </ItemsPanelTemplate>
                 </ListBox.ItemsPanel>
             </ListBox>
@@ -297,6 +295,15 @@
                     </GridView>
                 </ListView.View>
             </ListView>
+
+            <!-- Pemuatan pertama: jendela sudah tampil, daftar menyusul. -->
+            <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center"
+                        Visibility="{Binding IsFirstLoad, Converter={StaticResource BoolToVisibility}}">
+                <ProgressBar IsIndeterminate="True" Width="240" Height="4" BorderThickness="0"
+                             Foreground="{DynamicResource AccentBrush}" Background="{DynamicResource BorderBrush}" />
+                <TextBlock Text="{loc:Tr Status_Loading}" Margin="0,12,0,0" HorizontalAlignment="Center"
+                           Foreground="{DynamicResource TextSecondaryBrush}" />
+            </StackPanel>
 
             <!-- Pesan bila pencarian tidak menemukan apa pun -->
             <TextBlock Text="{Binding EmptyText}" HorizontalAlignment="Center" VerticalAlignment="Center"

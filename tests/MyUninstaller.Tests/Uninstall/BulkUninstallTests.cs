@@ -1,4 +1,4 @@
-using System.Text;
+﻿using System.Text;
 using Microsoft.Extensions.Logging.Abstractions;
 using MyUninstaller.App.ViewModels;
 using MyUninstaller.App.Views;
@@ -150,6 +150,7 @@ public class ProgramRiskRulesTests
         ProgramRiskRules.Classify(P("Sesuatu", system: true)).Should().Be(ProgramRisk.SystemComponent);
 }
 
+[Collection(WpfCollection.Name)]
 public class SilentSessionTests
 {
     private sealed class RecordingRunner : IProcessRunner

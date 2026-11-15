@@ -33,19 +33,19 @@ public sealed partial class MainViewModel : ObservableObject
     private readonly IDialogService _dialogs;
     private readonly IShellService _shell;
     private readonly IconLoader _icons;
-    private readonly UninstallWorkflow _uninstall;
+    private readonly Lazy<UninstallWorkflow> _uninstall;
     private readonly HunterProbe _hunter;
-    private readonly HistoryService _history;
+    private readonly Lazy<HistoryService> _history;
     private readonly IStartupRepository _startup;
     private readonly IUsageHistory _usage;
     private readonly IBrowserExtensionReader _extensions;
-    private readonly BrowserExtensionService _extensionService;
+    private readonly Lazy<BrowserExtensionService> _extensionService;
     private readonly IPortableProgramScanner _portableScanner;
-    private readonly PortableProgramService _portableService;
+    private readonly Lazy<PortableProgramService> _portableService;
     private readonly IWingetClient _winget;
     private readonly ISystemSnapshotter _snapshotter;
     private readonly IInstallTraceStore _traces;
-    private readonly IFolderSizeCalculator _folderSizes;
+    private readonly ICachedFolderSizes _folderSizes;
     private readonly InstallLocationRules _locationRules;
     private readonly ILogger<MainViewModel> _logger;
     private readonly BulkObservableCollection<ProgramItemViewModel> _programs = [];
@@ -64,19 +64,19 @@ public sealed partial class MainViewModel : ObservableObject
         IDialogService dialogs,
         IShellService shell,
         IconLoader icons,
-        UninstallWorkflow uninstall,
+        Lazy<UninstallWorkflow> uninstall,
         HunterProbe hunter,
-        HistoryService history,
+        Lazy<HistoryService> history,
         IStartupRepository startup,
         IUsageHistory usage,
         IBrowserExtensionReader extensions,
-        BrowserExtensionService extensionService,
+        Lazy<BrowserExtensionService> extensionService,
         IPortableProgramScanner portableScanner,
-        PortableProgramService portableService,
+        Lazy<PortableProgramService> portableService,
         IWingetClient winget,
         ISystemSnapshotter snapshotter,
         IInstallTraceStore traces,
-        IFolderSizeCalculator folderSizes,
+        ICachedFolderSizes folderSizes,
         InstallLocationRules locationRules,
         ILogger<MainViewModel> logger)
     {
@@ -103,6 +103,8 @@ public sealed partial class MainViewModel : ObservableObject
         _locationRules = locationRules;
         _logger = logger;
 
+        // Layanan hapus instalan/riwayat (jurnal SQLite, karantina, ...) dibuat saat pertama dipakai, bukan saat
+        // aplikasi dibuka: jendela utama tampil lebih cepat.
         ProgramsView = new ListCollectionView(_programs) { Filter = FilterProgram };
 
         _settings = settingsStore.Load();
@@ -143,7 +145,11 @@ public sealed partial class MainViewModel : ObservableObject
 
     [ObservableProperty]
     [NotifyCanExecuteChangedFor(nameof(RefreshCommand))]
+    [NotifyPropertyChangedFor(nameof(IsFirstLoad))]
     public partial bool IsLoading { get; set; }
+
+    /// <summary>Daftar belum pernah terisi dan sedang dimuat: area utama menampilkan indikator memuat.</summary>
+    public bool IsFirstLoad => IsLoading && _programs.Count == 0;
 
     [ObservableProperty]
     public partial string StatusText { get; set; } = string.Empty;
@@ -234,6 +240,7 @@ public sealed partial class MainViewModel : ObservableObject
                 }
 
                 _programs.ReplaceAll(programs.Select(program => new ProgramItemViewModel(program, today)));
+                OnPropertyChanged(nameof(IsFirstLoad));
                 _notice = Strings.Get("Status_LoadingStore");
                 UpdateStatus(evenWhileLoading: true);
             });
@@ -245,6 +252,7 @@ public sealed partial class MainViewModel : ObservableObject
 
             var items = programs.Select(program => new ProgramItemViewModel(program, today)).ToList();
             _programs.ReplaceAll(items);
+            OnPropertyChanged(nameof(IsFirstLoad));
 
             SelectedProgram = previousId is null ? null : _programs.FirstOrDefault(p => p.Model.Id == previousId);
             _notice = null;
@@ -301,10 +309,32 @@ public sealed partial class MainViewModel : ObservableObject
 
         _logger.LogInformation("Menu klik kanan: {Path} milik {Program}", path, program.DisplayName);
         SelectProgram(program);
-        if (SelectedProgram is { } item && item.Model.Id == program.Id && _uninstall.Start([item], AllModels()))
+        if (SelectedProgram is { } item && item.Model.Id == program.Id && _uninstall.Value.Start([item], AllModels()))
         {
             await RefreshAsync();
         }
+    }
+
+    /// <summary>Memuat ikon di latar belakang (2 utas) dan memasangnya di utas UI.</summary>
+    private Task LoadIconsAsync(IEnumerable<ProgramItemViewModel> items, CancellationToken cancellationToken)
+    {
+        SynchronizationContext? ui = SynchronizationContext.Current;
+        var list = items.ToList();
+        var options = new ParallelOptions { MaxDegreeOfParallelism = 2, CancellationToken = cancellationToken };
+        return Task.Run(() => Parallel.ForEach(list, options, item =>
+        {
+            if (_icons.Load(item.Model) is { } icon)
+            {
+                if (ui is null)
+                {
+                    item.Icon = icon;
+                }
+                else
+                {
+                    ui.Post(_ => item.Icon = icon, null);
+                }
+            }
+        }), cancellationToken);
     }
 
     /// <summary>Memuat ikon lalu menghitung ukuran folder untuk program tanpa EstimatedSize.</summary>
@@ -325,17 +355,10 @@ public sealed partial class MainViewModel : ObservableObject
 
         try
         {
-            var options = new ParallelOptions { MaxDegreeOfParallelism = 4, CancellationToken = cancellationToken };
-
-            // Program yang tampil lebih dulu; komponen sistem (tersembunyi bawaan) belakangan.
+            // Ikon hanya untuk entri yang tampil: komponen sistem (±300, tersembunyi bawaan) dimuat saat opsinya
+            // dinyalakan. 2 utas saja agar antarmuka tidak berebut CPU dengan pemuatan latar.
             var ordered = items.OrderBy(i => i.Model.IsSystemComponent).ToList();
-            var iconTask = Task.Run(() => Parallel.ForEach(ordered, options, item =>
-            {
-                if (_icons.Load(item.Model) is { } icon)
-                {
-                    OnUi(() => item.Icon = icon);
-                }
-            }), cancellationToken);
+            var iconTask = LoadIconsAsync(ordered.Where(i => !i.Model.IsSystemComponent || ShowSystemComponents), cancellationToken);
 
             // Versi 1.2: perkiraan terakhir dipakai (Prefetch/UserAssist) untuk label JARANG.
             var usageTask = Task.Run(() =>
@@ -379,6 +402,7 @@ public sealed partial class MainViewModel : ObservableObject
                         OnUi(() => item.ApplyComputedSize(size));
                     }
                 }), cancellationToken);
+                _folderSizes.Save();
             }
 
             await iconTask;
@@ -421,7 +445,7 @@ public sealed partial class MainViewModel : ObservableObject
     [RelayCommand(CanExecute = nameof(HasSelection))]
     private async Task UninstallAsync()
     {
-        if (_uninstall.Start([.. _selectedPrograms], AllModels()))
+        if (_uninstall.Value.Start([.. _selectedPrograms], AllModels()))
         {
             await RefreshAsync();
         }
@@ -430,7 +454,7 @@ public sealed partial class MainViewModel : ObservableObject
     [RelayCommand(CanExecute = nameof(HasSelection))]
     private async Task ForceUninstallAsync()
     {
-        if (_uninstall.Start([.. _selectedPrograms], AllModels(), forceMode: true))
+        if (_uninstall.Value.Start([.. _selectedPrograms], AllModels(), forceMode: true))
         {
             await RefreshAsync();
         }
@@ -464,7 +488,7 @@ public sealed partial class MainViewModel : ObservableObject
             {
                 main.WindowState = System.Windows.WindowState.Normal;
                 SelectProgram(program);
-                if (SelectedProgram is { } item && _uninstall.Start([item], AllModels()))
+                if (SelectedProgram is { } item && _uninstall.Value.Start([item], AllModels()))
                 {
                     await RefreshAsync();
                 }
@@ -522,8 +546,6 @@ public sealed partial class MainViewModel : ObservableObject
         SelectedProgram = item;
     }
 
-    [RelayCommand]
-    private void AutoFix() => _dialogs.ShowNotYetAvailable(Strings.Get("Nav_AutoFix"));
 
     /// <summary>Jendela "Program awal" (versi 1.2).</summary>
     [RelayCommand]
@@ -539,7 +561,7 @@ public sealed partial class MainViewModel : ObservableObject
     {
         var owner = System.Windows.Application.Current.MainWindow;
         BrowserExtensionsWindow? window = null;
-        var viewModel = new BrowserExtensionsViewModel(_extensions, _extensionService, _shell,
+        var viewModel = new BrowserExtensionsViewModel(_extensions, _extensionService.Value, _shell,
             confirmFirefox: (name, profile) => ChoiceDialog.Show(window, Strings.Get("Extensions_Remove"),
                 Strings.Format("Extensions_ConfirmFirefox", name, profile),
             [
@@ -557,7 +579,7 @@ public sealed partial class MainViewModel : ObservableObject
     {
         var owner = System.Windows.Application.Current.MainWindow;
         PortableProgramsWindow? window = null;
-        var viewModel = new PortableProgramsViewModel(_portableScanner, _portableService, _shell, AllModels,
+        var viewModel = new PortableProgramsViewModel(_portableScanner, _portableService.Value, _shell, AllModels,
             confirm: program => ChoiceDialog.Show(window, Strings.Get("Portable_Remove"),
                 Strings.Format("Portable_Confirm", program.Name, program.Folder,
                     program.SizeBytes is { } size ? IndonesianFormat.Size(size) : "?",
@@ -652,7 +674,7 @@ public sealed partial class MainViewModel : ObservableObject
     private async Task HistoryAsync()
     {
         // Sesi yang dibatalkan bisa mengembalikan entri program: segarkan daftar.
-        if (_history.Show())
+        if (_history.Value.Show())
         {
             await RefreshAsync();
         }
@@ -663,14 +685,14 @@ public sealed partial class MainViewModel : ObservableObject
     [RelayCommand(CanExecute = nameof(CanRemoveBrokenEntry))]
     private async Task RemoveBrokenEntryAsync()
     {
-        if (SelectedProgram is { } item && _uninstall.RemoveBrokenEntry(item.Model))
+        if (SelectedProgram is { } item && _uninstall.Value.RemoveBrokenEntry(item.Model))
         {
             await RefreshAsync();
         }
     }
 
     private bool CanRemoveBrokenEntry() =>
-        SelectedProgram is { } item && item.Model.Source != ProgramSource.Store && _uninstall.IsBroken(item.Model);
+        SelectedProgram is { } item && item.Model.Source != ProgramSource.Store && _uninstall.Value.IsBroken(item.Model);
 
     // ---- Aksi yang sudah berfungsi ----
 
@@ -758,6 +780,12 @@ public sealed partial class MainViewModel : ObservableObject
         if (_initializing)
         {
             return;
+        }
+
+        if (value)
+        {
+            // Ikon komponen sistem belum dimuat saat aplikasi dibuka.
+            _ = LoadIconsAsync([.. _programs.Where(p => p.Model.IsSystemComponent && p.Icon is null)], _loadCts?.Token ?? CancellationToken.None);
         }
 
         ProgramsView.Refresh();

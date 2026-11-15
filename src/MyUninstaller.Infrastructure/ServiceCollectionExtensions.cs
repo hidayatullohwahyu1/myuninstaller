@@ -45,6 +45,10 @@ public static class ServiceCollectionExtensions
         services.AddSingleton<IProgramScanner, ProgramScanner>();
         services.AddSingleton<IIconPathResolver, IconPathResolver>();
         services.AddSingleton<IFolderSizeCalculator, FolderSizeCalculator>();
+        services.AddSingleton<ICachedFolderSizes>(sp => new CachedFolderSizes(
+            sp.GetRequiredService<IFolderSizeCalculator>(), sp.GetRequiredService<IClock>(),
+            Path.Combine(sp.GetRequiredService<AppPaths>().UserRoot, "ukuran-folder.json"),
+            sp.GetRequiredService<Microsoft.Extensions.Logging.ILogger<CachedFolderSizes>>()));
         services.AddSingleton(_ => InstallLocationRules.ForCurrentSystem());
 
         // Hapus instalan (Tahap 3)

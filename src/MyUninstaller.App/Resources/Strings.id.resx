@@ -33,11 +33,9 @@
   <data name="Nav_Uninstall" xml:space="preserve"><value>Hapus instalan</value></data>
   <data name="Nav_ForceUninstall" xml:space="preserve"><value>Hapus paksa</value></data>
   <data name="Nav_Hunter" xml:space="preserve"><value>Mode Pemburu</value></data>
-  <data name="Nav_AutoFix" xml:space="preserve"><value>Perbaikan otomatis</value></data>
   <data name="Nav_History" xml:space="preserve"><value>Riwayat</value></data>
   <data name="Group_Tools" xml:space="preserve"><value>ALAT</value></data>
   <data name="Nav_Startup" xml:space="preserve"><value>Program awal</value></data>
-  <data name="Nav_Cleaner" xml:space="preserve"><value>Pembersih</value></data>
   <data name="Group_View" xml:space="preserve"><value>TAMPILAN</value></data>
   <data name="View_Icons" xml:space="preserve"><value>Ikon besar</value></data>
   <data name="View_Details" xml:space="preserve"><value>Rincian</value></data>
@@ -52,7 +50,6 @@
   <data name="Tooltip_Uninstall" xml:space="preserve"><value>Hapus instalan program yang dipilih (Del)</value></data>
   <data name="Tooltip_ForceUninstall" xml:space="preserve"><value>Hapus program yang penghapus instalannya rusak atau hilang</value></data>
   <data name="Tooltip_Hunter" xml:space="preserve"><value>Seret ikon target ke jendela, pintasan, atau ikon baki (Ctrl+H)</value></data>
-  <data name="Tooltip_AutoFix" xml:space="preserve"><value>Perbaiki entri program yang rusak</value></data>
   <data name="Tooltip_History" xml:space="preserve"><value>Lihat riwayat dan pulihkan dari karantina</value></data>
   <data name="Tooltip_AvailableInVersion" xml:space="preserve"><value>Tersedia di versi {0}</value></data>
 
@@ -98,7 +95,7 @@
   <!-- Bilah status -->
   <data name="Status_Summary" xml:space="preserve"><value>{0} program · total {1} · {2} dipilih</value></data>
   <data name="Status_Filtered" xml:space="preserve"><value>{0} dari {1} program · total {2} · {3} dipilih</value></data>
-  <data name="Status_Loading" xml:space="preserve"><value>Memuat daftar program...</value></data>
+  <data name="Status_Loading" xml:space="preserve"><value>Memuat daftar program…</value></data>
   <data name="Status_LoadingStore" xml:space="preserve"><value>Memuat aplikasi Microsoft Store...</value></data>
   <data name="Status_ComputingSizes" xml:space="preserve"><value>Menghitung ukuran {0} folder...</value></data>
   <data name="Status_NoResults" xml:space="preserve"><value>Tidak ada program yang cocok dengan "{0}".</value></data>
@@ -174,6 +171,7 @@
   <data name="Kind_RegistryValue" xml:space="preserve"><value>Nilai registri</value></data>
   <data name="Kind_Service" xml:space="preserve"><value>Layanan</value></data>
   <data name="Kind_ScheduledTask" xml:space="preserve"><value>Tugas terjadwal</value></data>
+  <data name="Kind_PathEntry" xml:space="preserve"><value>Entri PATH</value></data>
   <data name="Result_Removed" xml:space="preserve"><value>Dipindahkan ke karantina</value></data>
   <data name="Result_PendingReboot" xml:space="preserve"><value>Dihapus saat mulai ulang</value></data>
   <data name="Result_Protected" xml:space="preserve"><value>Dilindungi, tidak dihapus</value></data>
@@ -282,6 +280,7 @@
   <data name="ActionKind_QuarantinePath" xml:space="preserve"><value>Pindah ke karantina</value></data>
   <data name="ActionKind_DeleteRegistryKey" xml:space="preserve"><value>Hapus kunci registri</value></data>
   <data name="ActionKind_DeleteRegistryValue" xml:space="preserve"><value>Hapus nilai registri</value></data>
+  <data name="ActionKind_EditPathVariable" xml:space="preserve"><value>Buang entri PATH pengguna</value></data>
   <data name="ActionKind_DeleteService" xml:space="preserve"><value>Hapus layanan</value></data>
   <data name="ActionKind_DeleteScheduledTask" xml:space="preserve"><value>Hapus tugas terjadwal</value></data>
   <data name="ActionStatus_Pending" xml:space="preserve"><value>Tertunda</value></data>
@@ -324,7 +323,6 @@
   <data name="StartupSource_StartupFolderCommon" xml:space="preserve"><value>Folder Startup, semua pengguna</value></data>
   <data name="StartupSource_ScheduledTask" xml:space="preserve"><value>Tugas terjadwal</value></data>
   <data name="Tooltip_Startup" xml:space="preserve"><value>Lihat dan nonaktifkan program yang berjalan saat Windows dimulai</value></data>
-  <data name="Tooltip_NotYetVersion" xml:space="preserve"><value>Tersedia di versi berikutnya</value></data>
   <data name="Info_LastUsed" xml:space="preserve"><value>terakhir dipakai {0}</value></data>
 
   <!-- Ekstensi browser (versi 1.3) -->
@@ -433,8 +431,6 @@ Ukuran {2}, beserta {3} pintasan yang menunjuk ke folder ini. Semua bisa dipulih
   <data name="Journal_OutcomeWithCode" xml:space="preserve"><value>{0}, kode keluar {1}</value></data>
 
   <!-- Pesan -->
-  <data name="Feature_NotYet_Title" xml:space="preserve"><value>Belum tersedia</value></data>
-  <data name="Feature_NotYet_Message" xml:space="preserve"><value>Fitur "{0}" dikerjakan di tahap berikutnya.</value></data>
   <data name="Folder_NotFound" xml:space="preserve"><value>Folder tidak ditemukan:
 {0}</value></data>
   <data name="Registry_OpenFailed" xml:space="preserve"><value>Editor Registri tidak bisa dibuka. Rincian ada di catatan aktivitas.</value></data>

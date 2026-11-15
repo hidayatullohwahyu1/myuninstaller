@@ -40,6 +40,12 @@ public sealed record LeftoverScanRoots
     /// <summary>Kunci CLSID (mode Super).</summary>
     public required IReadOnlyList<RegistryRoot> ClsidKeys { get; init; }
 
+    /// <summary>Kunci Classes (asosiasi berkas: ProgID, Applications\exe, .ext\OpenWithProgids).</summary>
+    public IReadOnlyList<RegistryRoot> ClassesKeys { get; init; } = [];
+
+    /// <summary>Kunci variabel lingkungan pengguna (PATH), null untuk melewati. Hanya HKCU.</summary>
+    public RegistryRoot? EnvironmentKey { get; init; }
+
     /// <summary>Kunci layanan (mode Super), null untuk melewati.</summary>
     public RegistryRoot? ServicesKey { get; init; }
 
@@ -115,6 +121,12 @@ public sealed record LeftoverScanRoots
                 new(RegistryHive.LocalMachine, @"SOFTWARE\WOW6432Node\Classes\CLSID"),
                 new(RegistryHive.CurrentUser, @"Software\Classes\CLSID"),
             ],
+            ClassesKeys =
+            [
+                new(RegistryHive.CurrentUser, @"Software\Classes"),
+                new(RegistryHive.LocalMachine, @"SOFTWARE\Classes"),
+            ],
+            EnvironmentKey = new(RegistryHive.CurrentUser, "Environment"),
             ServicesKey = new(RegistryHive.LocalMachine, @"SYSTEM\CurrentControlSet\Services"),
             TasksFolder = Path.Combine(F(Environment.SpecialFolder.System), "Tasks"),
             DriveRoots = [.. DriveInfo.GetDrives().Where(d => d.DriveType == DriveType.Fixed && d.IsReady).Select(d => d.RootDirectory.FullName)],

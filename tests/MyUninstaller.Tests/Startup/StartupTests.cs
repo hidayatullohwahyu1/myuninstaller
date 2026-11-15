@@ -1,4 +1,4 @@
-using Microsoft.Extensions.Logging.Abstractions;
+﻿using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.Win32;
 using MyUninstaller.App.Services;
 using MyUninstaller.App.ViewModels;
@@ -226,6 +226,7 @@ public class UsageIndexTests
     }
 }
 
+[Collection(WpfCollection.Name)]
 public class StartupUiTests
 {
     private sealed class FakeRepository(bool succeed) : IStartupRepository

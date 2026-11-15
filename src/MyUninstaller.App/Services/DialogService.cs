@@ -1,4 +1,4 @@
-using System.Windows;
+﻿using System.Windows;
 using MyUninstaller.App.Localization;
 
 namespace MyUninstaller.App.Services;
@@ -11,9 +11,6 @@ public interface IDialogService
     void ShowWarning(string title, string message);
 
     void ShowError(string title, string message);
-
-    /// <summary>Pesan "fitur dikerjakan di tahap berikutnya".</summary>
-    void ShowNotYetAvailable(string featureName);
 }
 
 public sealed class DialogService : IDialogService
@@ -23,9 +20,6 @@ public sealed class DialogService : IDialogService
     public void ShowWarning(string title, string message) => Show(title, message, MessageBoxImage.Warning);
 
     public void ShowError(string title, string message) => Show(title, message, MessageBoxImage.Error);
-
-    public void ShowNotYetAvailable(string featureName) =>
-        ShowInfo(Strings.Get("Feature_NotYet_Title"), Strings.Format("Feature_NotYet_Message", featureName));
 
     private static void Show(string title, string message, MessageBoxImage image)
     {

@@ -1,4 +1,4 @@
-using Microsoft.Extensions.Logging.Abstractions;
+﻿using Microsoft.Extensions.Logging.Abstractions;
 using MyUninstaller.App.Services;
 using MyUninstaller.App.ViewModels;
 using MyUninstaller.App.Views;
@@ -172,6 +172,7 @@ public sealed class PortableScannerTests : IDisposable
     }
 }
 
+[Collection(WpfCollection.Name)]
 public sealed class PortableServiceTests : IDisposable
 {
     private readonly string _work = Path.Combine(Path.GetTempPath(), "MyUninstallerTests", Guid.NewGuid().ToString("N"));

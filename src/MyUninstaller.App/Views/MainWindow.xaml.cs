@@ -1,4 +1,4 @@
-using System.ComponentModel;
+﻿using System.ComponentModel;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
@@ -28,7 +28,6 @@ public partial class MainWindow : Window
         DataContext = viewModel;
 
         // "Pembersih" belum ada di daftar fitur PRD; tombolnya tetap nonaktif.
-        CleanerNav.ToolTip = Strings.Get("Tooltip_NotYetVersion");
 
         // Ctrl+F: fokus ke kotak cari.
         InputBindings.Add(new KeyBinding(new FocusSearchCommand(this), Key.F, ModifierKeys.Control));
@@ -47,7 +46,9 @@ public partial class MainWindow : Window
         };
 
         SourceInitialized += OnSourceInitialized;
-        Loaded += OnLoaded;
+        // Daftar dimuat SETELAH frame pertama tergambar: jendela langsung muncul, lalu daftar menyusul.
+        ContentRendered += OnContentRendered;
+        DetailsList.SizeChanged += (_, _) => FitNameColumn();
         Closing += OnClosing;
         _theme.ThemeChanged += OnThemeChanged;
     }
@@ -58,8 +59,9 @@ public partial class MainWindow : Window
         ApplyTitleBarTheme();
     }
 
-    private async void OnLoaded(object sender, RoutedEventArgs e)
+    private async void OnContentRendered(object? sender, EventArgs e)
     {
+        ContentRendered -= OnContentRendered;
         try
         {
             await _viewModel.RefreshCommand.ExecuteAsync(null);
@@ -69,6 +71,22 @@ public partial class MainWindow : Window
             // Galat sudah ditangani di ViewModel; ini hanya jaring pengaman untuk async void.
             System.Diagnostics.Debug.WriteLine(ex);
         }
+    }
+
+    /// <summary>
+    /// Kolom Nama mengisi sisa lebar tabel (kolom lain tetap), jadi tidak ada bilah gulir horizontal dan nama tidak
+    /// terpotong saat jendela dilebarkan.
+    /// </summary>
+    private void FitNameColumn()
+    {
+        if (DetailsList.View is not GridView grid || grid.Columns.Count == 0 || DetailsList.ActualWidth <= 0)
+        {
+            return;
+        }
+
+        const double ScrollBarAndPadding = 36;
+        double others = grid.Columns.Skip(1).Sum(c => c.ActualWidth);
+        grid.Columns[0].Width = Math.Max(200, DetailsList.ActualWidth - others - ScrollBarAndPadding);
     }
 
     private void OnClosing(object? sender, CancelEventArgs e)

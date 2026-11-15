@@ -1,4 +1,4 @@
-using System.Diagnostics;
+﻿using System.Diagnostics;
 using Microsoft.Extensions.Logging.Abstractions;
 using MyUninstaller.Core.Models;
 using MyUninstaller.Infrastructure.Scanning;
@@ -8,6 +8,7 @@ using Xunit.Abstractions;
 
 namespace MyUninstaller.Tests.Integration;
 
+[Collection(TimingCollection.Name)]
 /// <summary>
 /// Membaca registri dan paket Store mesin ini (hanya baca, tidak mengubah apa pun).
 /// Memastikan pemindai tidak melempar galat dan cukup cepat.

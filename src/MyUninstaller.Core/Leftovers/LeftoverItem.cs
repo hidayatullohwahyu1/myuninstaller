@@ -12,6 +12,9 @@ public enum LeftoverKind
     RegistryValue,
     Service,
     ScheduledTask,
+
+    /// <summary>Entri PATH pengguna yang menunjuk ke folder program (Location = HKCU\Environment, ValueName = entri).</summary>
+    PathEntry,
 }
 
 /// <summary>Bukti mengapa sesuatu dianggap sisa program (menentukan skor).</summary>
@@ -99,6 +102,7 @@ public sealed record LeftoverItem
         LeftoverKind.RegistryKey => new RemovalTarget(RemovalTargetKind.RegistryKey, Location),
         LeftoverKind.RegistryValue => new RemovalTarget(RemovalTargetKind.RegistryValue, Location, ValueName),
         LeftoverKind.Service => new RemovalTarget(RemovalTargetKind.Service, Location),
+        LeftoverKind.PathEntry => new RemovalTarget(RemovalTargetKind.PathEntry, Location, ValueName),
         _ => new RemovalTarget(RemovalTargetKind.ScheduledTask, Location),
     };
 

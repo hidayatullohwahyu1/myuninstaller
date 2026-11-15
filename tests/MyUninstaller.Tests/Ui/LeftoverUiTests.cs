@@ -1,4 +1,4 @@
-using System.Xml.Linq;
+﻿using System.Xml.Linq;
 using Microsoft.Extensions.Logging.Abstractions;
 using MyUninstaller.App.ViewModels;
 using MyUninstaller.App.Views;
@@ -10,6 +10,7 @@ using MyUninstaller.Core.Uninstall;
 
 namespace MyUninstaller.Tests.Ui;
 
+[Collection(WpfCollection.Name)]
 public sealed class LeftoverUiTests : IDisposable
 {
     private readonly List<string> _tempRoots = [];

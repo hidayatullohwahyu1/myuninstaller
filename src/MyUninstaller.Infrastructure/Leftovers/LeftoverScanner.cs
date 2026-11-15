@@ -75,6 +75,8 @@ public sealed class LeftoverScanner(
         Safe("kunci Uninstall", () => ScanUninstallKey(program, Add));
         Safe("App Paths", () => ScanAppPaths(ctx, Add, ct));
         Safe("Run", () => ScanRunValues(ctx, Add));
+        Safe("asosiasi berkas", () => ScanFileAssociations(ctx, Add, ct));
+        Safe("PATH pengguna", () => ScanUserPath(ctx, Add));
 
         if (deep)
         {
@@ -465,6 +467,114 @@ public sealed class LeftoverScanner(
         catch (Exception ex) when (ex is IOException or UnauthorizedAccessException or System.Xml.XmlException)
         {
             return [];
+        }
+    }
+
+    /// <summary>
+    /// Asosiasi berkas: ProgID dan Applications\&lt;exe&gt; yang perintah "buka"-nya (atau ikonnya) menunjuk ke folder
+    /// program, lalu nilai ProgID itu di .ext\OpenWithProgids. Kunci ekstensi (.ext) sendiri TIDAK pernah diusulkan:
+    /// Windows menangani ekstensi tanpa program dengan menawarkan "Pilih aplikasi".
+    /// </summary>
+    private void ScanFileAssociations(LeftoverContext ctx, AddItem add, CancellationToken ct)
+    {
+        foreach (var root in roots.ClassesKeys)
+        {
+            using var classes = Open(root);
+            if (classes is null)
+            {
+                continue;
+            }
+
+            var progIds = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+            string[] names = classes.GetSubKeyNames();
+            foreach (string name in names.Where(n => !ProtectedRegistryKeys.IsProtectedClassName(n)))
+            {
+                ct.ThrowIfCancellationRequested();
+                string path = $@"{root.FullPath}\{name}";
+                using var entry = TryOpen(classes, name);
+                if (entry is not null && AssociationCommand(entry, ctx) is { } command)
+                {
+                    progIds.Add(name);
+                    add(LeftoverKind.RegistryKey, path, LeftoverEvidence.PointsIntoInstallLocation, command);
+                }
+            }
+
+            using (var applications = TryOpen(classes, "Applications"))
+            {
+                foreach (string exe in applications?.GetSubKeyNames() ?? [])
+                {
+                    ct.ThrowIfCancellationRequested();
+                    using var entry = TryOpen(applications!, exe);
+                    if (entry is not null && AssociationCommand(entry, ctx) is { } command)
+                    {
+                        add(LeftoverKind.RegistryKey, $@"{root.FullPath}\Applications\{exe}", LeftoverEvidence.PointsIntoInstallLocation, command);
+                    }
+                }
+            }
+
+            if (progIds.Count == 0)
+            {
+                continue;
+            }
+
+            // .ext\OpenWithProgids: hanya NILAI bernama ProgID yang dibuang; kuncinya tetap.
+            foreach (string extension in names.Where(n => n.StartsWith('.')))
+            {
+                ct.ThrowIfCancellationRequested();
+                using var openWith = TryOpen(classes, $@"{extension}\OpenWithProgids");
+                foreach (string value in openWith?.GetValueNames().Where(progIds.Contains) ?? [])
+                {
+                    add(LeftoverKind.RegistryValue, $@"{root.FullPath}\{extension}\OpenWithProgids",
+                        LeftoverEvidence.PointsIntoInstallLocation, value, value);
+                }
+            }
+        }
+    }
+
+    /// <summary>Perintah shell\*\command atau DefaultIcon yang menunjuk ke folder program; null bila tidak ada.</summary>
+    private static string? AssociationCommand(RegistryKey entry, LeftoverContext ctx)
+    {
+        using (var shell = TryOpen(entry, "shell"))
+        {
+            foreach (string verb in shell?.GetSubKeyNames() ?? [])
+            {
+                using var command = TryOpen(shell!, $@"{verb}\command");
+                if (command?.GetValue(null) is string text && ctx.CommandPointsIntoInstallLocation(text))
+                {
+                    return text;
+                }
+            }
+        }
+
+        using var icon = TryOpen(entry, "DefaultIcon");
+        return icon?.GetValue(null) is string iconPath && ctx.CommandPointsIntoInstallLocation(iconPath) ? iconPath : null;
+    }
+
+    /// <summary>
+    /// Entri PATH pengguna yang menunjuk ke folder program. PATH sistem (HKLM\SYSTEM\CurrentControlSet\Control)
+    /// tidak pernah disentuh.
+    /// </summary>
+    private void ScanUserPath(LeftoverContext ctx, AddItem add)
+    {
+        if (roots.EnvironmentKey is not { } root)
+        {
+            return;
+        }
+
+        using var key = Open(root);
+        if (key?.GetValue(PathVariableRules.ValueName, null, RegistryValueOptions.DoNotExpandEnvironmentNames) is not string value)
+        {
+            return;
+        }
+
+        foreach (string entry in PathVariableRules.Split(value))
+        {
+            string folder = PathVariableRules.Expand(entry);
+            if (Path.IsPathFullyQualified(folder)
+                && (ctx.IsInsideInstallLocation(Path.Combine(folder, "x")) || ctx.IsInsideInstallLocation(folder)))
+            {
+                add(LeftoverKind.PathEntry, root.FullPath, LeftoverEvidence.PointsIntoInstallLocation, folder, entry);
+            }
         }
     }
 

@@ -150,6 +150,68 @@ public sealed class RegistryBackupService(string backupRoot, ILogger<RegistryBac
         }
     }
 
+    public string? ReadRawString(string keyPath, string valueName)
+    {
+        var (hive, subKey) = Split(keyPath);
+        if (hive is null)
+        {
+            return null;
+        }
+
+        try
+        {
+            using var baseKey = RegistryKey.OpenBaseKey(hive.Value, RegistryView.Registry64);
+            using var key = baseKey.OpenSubKey(subKey, writable: false);
+            return key?.GetValue(valueName, null, RegistryValueOptions.DoNotExpandEnvironmentNames) as string;
+        }
+        catch (Exception ex) when (ex is SecurityException or UnauthorizedAccessException or IOException)
+        {
+            return null;
+        }
+    }
+
+    /// <summary>
+    /// Hanya untuk PATH pengguna (HKCU\Environment): jenis nilai (REG_EXPAND_SZ/REG_SZ) dipertahankan, lalu Windows
+    /// diberi tahu (WM_SETTINGCHANGE "Environment") agar program yang dibuka berikutnya memakai PATH baru.
+    /// </summary>
+    public bool WriteRawString(string keyPath, string valueName, string value)
+    {
+        if (!ProtectedRegistryKeys.IsEditablePathVariable(keyPath))
+        {
+            logger.LogWarning("Menolak menulis nilai di luar PATH pengguna: {Key}\\{Value}", keyPath, valueName);
+            return false;
+        }
+
+        var (hive, subKey) = Split(keyPath);
+        if (hive is null)
+        {
+            return false;
+        }
+
+        try
+        {
+            using var baseKey = RegistryKey.OpenBaseKey(hive.Value, RegistryView.Registry64);
+            using var key = baseKey.OpenSubKey(subKey, writable: true);
+            if (key is null)
+            {
+                return false;
+            }
+
+            var kind = key.GetValueNames().Contains(valueName, StringComparer.OrdinalIgnoreCase)
+                ? key.GetValueKind(valueName)
+                : RegistryValueKind.ExpandString;
+            key.SetValue(valueName, value, kind is RegistryValueKind.String ? RegistryValueKind.String : RegistryValueKind.ExpandString);
+            EnvironmentBroadcast.Send();
+            logger.LogInformation("PATH pengguna diperbarui ({Key}\\{Value})", keyPath, valueName);
+            return true;
+        }
+        catch (Exception ex) when (ex is SecurityException or UnauthorizedAccessException or IOException)
+        {
+            logger.LogWarning(ex, "PATH pengguna tidak bisa ditulis: {Key}\\{Value}", keyPath, valueName);
+            return false;
+        }
+    }
+
     /// <summary>reg.exe memakai singkatan HKLM/HKCU/HKU.</summary>
     internal static string ToRegExePath(string keyPath)
     {

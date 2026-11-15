@@ -1,4 +1,4 @@
-using Microsoft.Extensions.Logging.Abstractions;
+﻿using Microsoft.Extensions.Logging.Abstractions;
 using MyUninstaller.App.ViewModels;
 using MyUninstaller.App.Views;
 using MyUninstaller.Core.Winget;
@@ -84,6 +84,7 @@ public class WingetRulesTests
             .Should().Be("Sumber memerlukan persetujuan.");
 }
 
+[Collection(WpfCollection.Name)]
 public class WingetViewModelTests
 {
     private sealed class FakeWinget(WingetListResult result, int? exitCode = 0) : IWingetClient

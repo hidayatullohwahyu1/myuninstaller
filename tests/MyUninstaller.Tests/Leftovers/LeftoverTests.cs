@@ -1,4 +1,4 @@
-using System.Diagnostics;
+﻿using System.Diagnostics;
 using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.Win32;
 using MyUninstaller.Core.Leftovers;
@@ -380,6 +380,7 @@ public sealed class LeftoverScannerTests : IDisposable
     }
 }
 
+[Collection(TimingCollection.Name)]
 /// <summary>
 /// Uji baca-saja pada sistem sungguhan: berpura-pura program yang masih terpasang sudah dihapus, lalu
 /// memastikan hasil pindai tidak pernah menyentuh daftar lindung dan cukup cepat. Tidak menghapus apa pun.

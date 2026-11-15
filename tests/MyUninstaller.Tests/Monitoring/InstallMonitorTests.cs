@@ -1,4 +1,4 @@
-using Microsoft.Extensions.Logging.Abstractions;
+﻿using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.Win32;
 using MyUninstaller.App.ViewModels;
 using MyUninstaller.App.Views;
@@ -262,6 +262,7 @@ public sealed class InstallTraceStoreTests : IDisposable
     }
 }
 
+[Collection(WpfCollection.Name)]
 public class InstallMonitorViewModelTests
 {
     private sealed class FakeSnapshotter : ISystemSnapshotter

@@ -1,4 +1,4 @@
-using Microsoft.Extensions.Logging.Abstractions;
+﻿using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.Win32;
 using MyUninstaller.App.Services;
 using MyUninstaller.App.ViewModels;
@@ -67,6 +67,7 @@ public class HistoryReportTests
     }
 }
 
+[Collection(WpfCollection.Name)]
 /// <summary>
 /// Kriteria penerimaan PRD "Batalkan mengembalikan semua berkas dan registri dari satu sesi; program yang
 /// dipulihkan tetap tercatat di registri": karantina, reg.exe, jurnal SQLite, dan Riwayat sungguhan pada
