@@ -80,7 +80,10 @@ Root: HKLM; Subkey: "Software\Classes\lnkfile\shell\MyUninstaller"; ValueType: s
 Root: HKLM; Subkey: "Software\Classes\lnkfile\shell\MyUninstaller\command"; ValueType: string; ValueName: ""; ValueData: """{app}\{#AppExe}"" --hapus ""%1"""; Tasks: contextmenu
 
 [Run]
-Filename: "{app}\{#AppExe}"; Description: "{cm:LaunchApp}"; Flags: nowait postinstall skipifsilent
+; runascurrentuser: entri postinstall bawaannya dijalankan sebagai pengguna asli TANPA hak admin, sedangkan aplikasi
+; ber-manifest requireAdministrator → CreateProcess gagal kode 740. Setup sudah berjalan sebagai admin, jadi aplikasi
+; dijalankan dengan hak yang sama (tanpa UAC kedua).
+Filename: "{app}\{#AppExe}"; Description: "{cm:LaunchApp}"; Flags: nowait postinstall skipifsilent runascurrentuser
 
 [Code]
 const
