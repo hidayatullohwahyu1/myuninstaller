@@ -1,4 +1,4 @@
-using System.Collections.ObjectModel;
+﻿using System.Collections.ObjectModel;
 using System.IO;
 using System.Windows.Media;
 using CommunityToolkit.Mvvm.ComponentModel;
@@ -23,6 +23,7 @@ public sealed partial class StartupItemViewModel : ObservableObject
     {
         Entry = entry;
         Program = program;
+        Status = StartupAssessment.Classify(entry, program, File.Exists, Environment.GetFolderPath(Environment.SpecialFolder.Windows));
         _setEnabled = setEnabled;
         IsEnabled = entry.IsEnabled;
     }
@@ -40,6 +41,31 @@ public sealed partial class StartupItemViewModel : ObservableObject
     public string? ProgramText => Program is null ? null : Strings.Format("Startup_Program", Program.DisplayName);
 
     public bool CanOpenLocation => Entry.ExecutablePath is { } exe && File.Exists(exe);
+
+    /// <summary>Milik program terpasang / pemilik tidak dikenal / berkas sudah tidak ada.</summary>
+    public StartupStatus Status { get; }
+
+    public bool IsMissing => Status == StartupStatus.MissingFile;
+
+    public bool IsUnknownOwner => Status == StartupStatus.UnknownOwner;
+
+    /// <summary>Keterangan status untuk entri yang perlu diperhatikan; null bila milik program terpasang.</summary>
+    public string? StatusText => Status switch
+    {
+        StartupStatus.MissingFile => Strings.Get("Startup_StatusMissing"),
+        StartupStatus.UnknownOwner when StartupAssessment.RunsFromAppData(Entry.ExecutablePath,
+            Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
+            Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData)) => Strings.Get("Startup_StatusUnknownAppData"),
+        StartupStatus.UnknownOwner => Strings.Get("Startup_StatusUnknown"),
+        _ => null,
+    };
+
+    /// <summary>Keterangan pemilik: nama program, atau "Bagian dari Windows".</summary>
+    public string? OwnerText => Status switch
+    {
+        StartupStatus.Windows => Strings.Get("Startup_StatusWindows"),
+        _ => ProgramText,
+    };
 
     [ObservableProperty]
     public partial ImageSource? Icon { get; set; }
@@ -79,14 +105,18 @@ public sealed partial class StartupViewModel : ObservableObject
     private readonly Func<IReadOnlyList<InstalledProgram>> _programs;
     private readonly IconLoader? _icons;
     private readonly ILogger _logger;
+    private readonly Func<StartupEntry, bool>? _removeEntry;
 
+    /// <param name="removeEntry">Membuang entri yang berkasnya sudah tidak ada (konfirmasi + SafeRemover); null = tidak tersedia.</param>
     public StartupViewModel(
         IStartupRepository repository,
         IShellService shell,
         Func<IReadOnlyList<InstalledProgram>> programs,
         IconLoader? icons,
-        ILogger logger)
+        ILogger logger,
+        Func<StartupEntry, bool>? removeEntry = null)
     {
+        _removeEntry = removeEntry;
         _repository = repository;
         _shell = shell;
         _programs = programs;
@@ -98,7 +128,7 @@ public sealed partial class StartupViewModel : ObservableObject
     public ObservableCollection<StartupItemViewModel> Items { get; } = [];
 
     [ObservableProperty]
-    [NotifyCanExecuteChangedFor(nameof(OpenLocationCommand))]
+    [NotifyCanExecuteChangedFor(nameof(OpenLocationCommand), nameof(RemoveEntryCommand))]
     public partial StartupItemViewModel? Selected { get; set; }
 
     [ObservableProperty]
@@ -122,7 +152,7 @@ public sealed partial class StartupViewModel : ObservableObject
         var programs = _programs();
         foreach (var entry in _repository.GetAll())
         {
-            var program = ProgramMatcher.FindByExecutable(entry.ExecutablePath, programs);
+            var program = StartupAssessment.FindOwner(entry, programs);
             var item = new StartupItemViewModel(entry, program, Apply);
             item.PropertyChanged += (_, e) =>
             {
@@ -164,8 +194,30 @@ public sealed partial class StartupViewModel : ObservableObject
         return ok;
     }
 
-    private void UpdateSummary() =>
+    private void UpdateSummary()
+    {
         SummaryText = Strings.Format("Startup_Summary", IndonesianFormat.Count(Items.Count), IndonesianFormat.Count(Items.Count(i => i.IsEnabled)));
+        int unknown = Items.Count(i => i.IsUnknownOwner);
+        int missing = Items.Count(i => i.IsMissing);
+        if (unknown + missing > 0)
+        {
+            SummaryText += Strings.Format("Startup_SummaryIssues", IndonesianFormat.Count(unknown), IndonesianFormat.Count(missing));
+        }
+    }
+
+    /// <summary>Hanya entri yang exe-nya sudah tidak ada: entri yang masih punya berkas tidak pernah dihapus (cukup dinonaktifkan).</summary>
+    [RelayCommand(CanExecute = nameof(CanRemoveEntry))]
+    private void RemoveEntry()
+    {
+        var item = Selected!;
+        if (_removeEntry!(item.Entry))
+        {
+            NoticeText = Strings.Format("Startup_Removed", item.Name);
+            Load();
+        }
+    }
+
+    private bool CanRemoveEntry() => _removeEntry is not null && Selected is { IsMissing: true };
 
     [RelayCommand(CanExecute = nameof(CanOpenLocation))]
     private void OpenLocation()

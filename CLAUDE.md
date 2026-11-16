@@ -276,3 +276,35 @@ Pengaturan tampilan per pengguna di `%LocalAppData%\MyUninstaller\pengaturan.jso
    - Mengukur aplikasi sungguhan: jalankan `artifacts\publish\MyUninstaller.exe` dengan `__COMPAT_LAYER=RunAsInvoker`,
      ambil gambar HANYA jendela aplikasi (`PrintWindow`), dan pastikan pengguna tidak sedang memakai jendela itu
      (`GetLastInputInfo`) atau ukur saat jendela diperkecil. Satu instance saja (mutex): tutup instance lama dulu.
+11. [x] Kegunaan (16 November 2026; laptop pengembang 1366×768, area kerja 720 DIP):
+   - **Bilah gulir**: jalur di atas/bawah pegangan = `RepeatButton` PageUp/PageDown (dulu hanya Thumb: tidak bisa
+     diklik), lebar 14 px, pegangan ≥ 8 px. Tes: `ScrollBarTemplateTests`.
+   - **Tinggi jendela**: `WindowFit` (Core/Layout) dipanggil `ThemedWindow.FitToWorkArea` saat Loaded untuk SEMUA
+     jendela (juga MainWindow, yang turunan Window biasa): dikecilkan/digeser agar muat di atas taskbar, MaxHeight =
+     tinggi area kerja. Jendela utama bawaan 1180×700 (dulu 760 > 720: bilah status tertutup taskbar).
+   - **Teks terpotong**: ubin ikon 124×126 (slot panel 130×132), nama sampai 3 baris → nama terpotong di laptop ini
+     44 → 14 dari 134; tooltip `ToolTipText` = nama lengkap + ringkasan (+ penilaian). Judul dialog mode dibungkus.
+   - **Penilaian program**: `ProgramItemViewModel.Risk` (`ProgramRiskRules`) → lencana merah DRIVER/RUNTIME/SISTEM di
+     kisi dan tabel, baris "Penilaian:" di panel info (selalu ada; merah bila berisiko). Di laptop ini 27 dari 134
+     program (8 driver, 19 runtime bersama). Sengaja TIDAK ada label "berguna/tidak berguna": hanya yang bisa
+     dibuktikan (risiko teknis; bukti pemakaian lewat JARANG/terakhir dipakai). Kunci resx `Assess_*`, `Badge_Risk_*`.
+   - Memilih baris lewat UI Automation untuk pemeriksaan: baris tabel tidak punya teks UIA; pakai
+     `IsSelectionItemPatternAvailableProperty` (urutan memuat 2 tombol tampilan panel kiri dulu).
+12. [x] Sistem desain + aplikasi tak terdaftar (16 November 2026):
+   - **Tipografi**: 6 tingkat sebagai sumber daya `FontSize.Caption/Small/Body/BodyLarge/Subtitle/Title` = 11/12/13/14/16/20
+     di `Controls.xaml` (dulu 12 ukuran acak 9,5…22). Teks WAJIB `{StaticResource FontSize.X}`; angka langsung hanya
+     untuk ikon (`GlyphText`). Dijaga `DesignSystemTests.Text_uses_only_the_type_scale`.
+   - **Warna**: isi berteks putih (lencana, tombol bahaya, skor) ≥ 4,5:1; satu merah `#C42B34` (DangerBrush =
+     BadgeRiskBrush). Teks/ikon berwarna di atas permukaan memakai token terpisah per tema: `DangerTextBrush`,
+     `SuccessTextBrush`, `WarningTextBrush` (JANGAN pakai Badge*Brush sebagai warna teks). Lencana netral
+     `NeutralBadgeBrush`. Dijaga `DesignSystemTests` (semua pasangan teks × permukaan di kedua tema).
+   - **Program awal**: `StartupAssessment` (Core) → status Milik program / Pemilik tidak dikenal (oranye; disebut bila
+     dari AppData) / Berkas tidak ada (merah) / Bagian dari Windows. Pemilik juga dicari lewat nama produk + penerbit dari
+     info versi exe (`StartupEntry.ProductName/CompanyName`; contoh Epson Event Manager tanpa InstallLocation).
+     "Buang entri" HANYA untuk berkas yang sudah tidak ada (`StartupCleanupService`, diperiksa ulang tepat sebelum
+     hapus, SafeRemover + jurnal sesi "Startup", bisa dibatalkan). Entri yang berkasnya ada tetap hanya dinonaktifkan.
+     Contoh nyata di laptop ini: `electron.app.ueli` di AppData\Roaming\RepairCang\Tao Raiqsuv Utils (exe sudah hilang).
+   - **AppData di Program portable**: Roaming dan Local ikut dipindai (kedalaman 2, anak Microsoft/Packages/Temp/
+     Programs/cache dilewati), hasilnya `IsInAppData` → lencana PERIKSA + konfirmasi tegas. Nama folder tingkat teratas
+     dicocokkan dengan program terpasang (Android\Sdk ↔ Android Studio, Claude-NativeHost ↔ Claude: tidak ditawarkan).
+     Di laptop ini: uTorrent\updates, IDM installer, Mendeley updater, dyad. Pemindaian 13 detik (kedalaman 3 = 70 detik).

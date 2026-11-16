@@ -48,6 +48,9 @@ public partial class MainWindow : Window
         SourceInitialized += OnSourceInitialized;
         // Daftar dimuat SETELAH frame pertama tergambar: jendela langsung muncul, lalu daftar menyusul.
         ContentRendered += OnContentRendered;
+
+        // Ukuran tersimpan/bawaan bisa lebih tinggi dari layar (laptop 768 px): masukkan ke area kerja.
+        Loaded += (_, _) => ThemedWindow.FitToWorkArea(this);
         DetailsList.SizeChanged += (_, _) => FitNameColumn();
         Closing += OnClosing;
         _theme.ThemeChanged += OnThemeChanged;

@@ -1,4 +1,4 @@
-<local:ThemedWindow x:Class="MyUninstaller.App.Views.InstallMonitorWindow"
+﻿<local:ThemedWindow x:Class="MyUninstaller.App.Views.InstallMonitorWindow"
                     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
                     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
@@ -68,7 +68,7 @@
 
     <DockPanel Margin="20,16,20,16">
         <StackPanel DockPanel.Dock="Top" Margin="0,0,0,12">
-            <TextBlock Text="{loc:Tr Monitor_Title}" FontFamily="{StaticResource UiDisplayFont}" FontSize="18" FontWeight="SemiBold" />
+            <TextBlock Text="{loc:Tr Monitor_Title}" FontFamily="{StaticResource UiDisplayFont}" FontSize="{StaticResource FontSize.Title}" FontWeight="SemiBold" />
             <TextBlock Text="{loc:Tr Monitor_Subtitle}" Margin="0,3,0,0" TextWrapping="Wrap" Foreground="{DynamicResource TextSecondaryBrush}" />
         </StackPanel>
 
@@ -164,7 +164,7 @@
                                     <TextBlock Style="{StaticResource GlyphText}" Text="{StaticResource Glyph.History}" Foreground="{DynamicResource AccentTextBrush}" />
                                     <StackPanel Grid.Column="1">
                                         <TextBlock Text="{Binding Name}" FontWeight="SemiBold" TextTrimming="CharacterEllipsis" />
-                                        <TextBlock Text="{Binding DetailText}" FontSize="12" Foreground="{DynamicResource TextSecondaryBrush}" />
+                                        <TextBlock Text="{Binding DetailText}" FontSize="{StaticResource FontSize.Small}" Foreground="{DynamicResource TextSecondaryBrush}" />
                                     </StackPanel>
                                 </Grid>
                             </DataTemplate>

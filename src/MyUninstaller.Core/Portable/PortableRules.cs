@@ -1,4 +1,4 @@
-using MyUninstaller.Core.Leftovers;
+﻿using MyUninstaller.Core.Leftovers;
 using MyUninstaller.Core.Models;
 
 namespace MyUninstaller.Core.Portable;
@@ -11,6 +11,9 @@ public static class PortableRules
 {
     /// <summary>Kedalaman maksimum dari folder akar (Unduhan\arsip\program\app.exe = 3).</summary>
     public const int MaxDepth = 3;
+
+    /// <summary>Kedalaman di AppData (Roaming\utorrent\updates = 2). Lebih dalam = cache browser/aplikasi, lambat.</summary>
+    public const int MaxAppDataDepth = 2;
 
     /// <summary>Batas jumlah folder yang dikunjungi per pemindaian (drive besar tidak membuat pemindaian berjam-jam).</summary>
     public const int MaxFoldersVisited = 50_000;
@@ -84,8 +87,14 @@ public static class PortableRules
     /// installer Burn hanya mencatat Package Cache). Cocok bila nama produk/folder ada di nama program terpasang,
     /// atau penerbitnya sama dan namanya beririsan. Lebih baik melewatkan program portable daripada salah hapus.
     /// </summary>
-    public static bool MatchesInstalledProgram(string folderName, ExecutableInfo main, IEnumerable<InstalledProgram> installed)
+    /// <param name="appDataTopName">
+    /// Untuk kandidat di AppData: nama folder tingkat teratas (anak langsung Roaming/Local). Komponen program terpasang
+    /// sering memakai nama itu (AppData\Local\Android\Sdk milik Android Studio, Roaming\Claude-NativeHost milik Claude),
+    /// jadi cocok bila nama itu memuat nama program terpasang (≥ 5 huruf) atau sebaliknya.
+    /// </param>
+    public static bool MatchesInstalledProgram(string folderName, ExecutableInfo main, IEnumerable<InstalledProgram> installed, string? appDataTopName = null)
     {
+        string top = NameMatcher.Normalize(appDataTopName);
         var names = new[] { main.ProductName, main.Description, folderName, Path.GetFileNameWithoutExtension(main.Path) }
             .Select(NameMatcher.Normalize)
             .Where(n => n.Length >= 4 && !NameMatcher.IsGeneric(n))
@@ -108,6 +117,12 @@ public static class PortableRules
 
             bool samePublisher = publisher.Length >= 3 && NameMatcher.NormalizePublisher(program.Publisher) == publisher;
             if (samePublisher && names.Any(n => n.Contains(installedName, StringComparison.Ordinal)))
+            {
+                return true;
+            }
+
+            if (top.Length >= 4 && !NameMatcher.IsGeneric(top) && installedName.Length >= 5
+                && (top.Contains(installedName, StringComparison.Ordinal) || installedName.Contains(top, StringComparison.Ordinal)))
             {
                 return true;
             }

@@ -1,4 +1,4 @@
-using MyUninstaller.Core.Models;
+﻿using MyUninstaller.Core.Models;
 
 namespace MyUninstaller.Core.Portable;
 
@@ -19,6 +19,12 @@ public sealed record PortableProgram
     public long? SizeBytes { get; init; }
 
     public DateTimeOffset? LastUsed { get; init; }
+
+    /// <summary>
+    /// Ditemukan di AppData (Roaming/Local): lokasi program yang ikut terpasang saat browsing, tetapi juga tempat
+    /// komponen sah program lain. Ditandai "periksa dulu" dan butuh konfirmasi yang lebih tegas.
+    /// </summary>
+    public bool IsInAppData { get; init; }
 
     /// <summary>Pintasan di Desktop/Menu Mulai yang menunjuk ke dalam folder ini (ikut dihapus).</summary>
     public IReadOnlyList<string> Shortcuts { get; init; } = [];

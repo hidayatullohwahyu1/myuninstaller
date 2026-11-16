@@ -1,4 +1,4 @@
-<local:ThemedWindow x:Class="MyUninstaller.App.Views.StartupWindow"
+﻿<local:ThemedWindow x:Class="MyUninstaller.App.Views.StartupWindow"
                     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
                     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
@@ -28,13 +28,13 @@
 
     <DockPanel Margin="20,16,20,16">
         <StackPanel DockPanel.Dock="Top" Margin="0,0,0,12">
-            <TextBlock Text="{loc:Tr Startup_Title}" FontFamily="{StaticResource UiDisplayFont}" FontSize="18" FontWeight="SemiBold" />
+            <TextBlock Text="{loc:Tr Startup_Title}" FontFamily="{StaticResource UiDisplayFont}" FontSize="{StaticResource FontSize.Title}" FontWeight="SemiBold" />
             <TextBlock Text="{loc:Tr Startup_Subtitle}" Margin="0,3,0,0" TextWrapping="Wrap" Foreground="{DynamicResource TextSecondaryBrush}" />
         </StackPanel>
 
         <Grid DockPanel.Dock="Bottom" Margin="0,12,0,0">
-            <StackPanel VerticalAlignment="Center" HorizontalAlignment="Left" MaxWidth="460">
-                <TextBlock Text="{Binding SummaryText}" Foreground="{DynamicResource TextSecondaryBrush}" />
+            <StackPanel VerticalAlignment="Center" HorizontalAlignment="Left" MaxWidth="330">
+                <TextBlock Text="{Binding SummaryText}" Foreground="{DynamicResource TextSecondaryBrush}" TextWrapping="Wrap" />
                 <TextBlock Text="{Binding NoticeText}" Tag="{Binding NoticeText}" Style="{StaticResource CollapsedWhenNull}"
                            Foreground="{DynamicResource AccentTextBrush}" TextTrimming="CharacterEllipsis" />
             </StackPanel>
@@ -43,6 +43,9 @@
                         Command="{Binding RefreshCommand}" />
                 <Button Style="{StaticResource SecondaryButton}" Tag="{StaticResource Glyph.Folder}" Content="{loc:Tr Startup_OpenLocation}"
                         Command="{Binding OpenLocationCommand}" Margin="8,0,0,0" />
+                <!-- Hanya untuk entri yang berkasnya sudah tidak ada. Merah, bukan tombol Enter. -->
+                <Button Style="{StaticResource DangerTextButton}" Content="{loc:Tr Startup_RemoveEntry}"
+                        Command="{Binding RemoveEntryCommand}" Margin="8,0,0,0" />
                 <Button Style="{StaticResource PrimaryButton}" Content="{loc:Tr Common_Close}" IsCancel="True" IsDefault="True"
                         Click="Close_Click" Margin="8,0,0,0" MinWidth="90" />
             </StackPanel>
@@ -97,15 +100,24 @@
 
                                 <StackPanel Grid.Column="2" Margin="0,0,12,0">
                                     <TextBlock Text="{Binding Name}" FontWeight="SemiBold" TextTrimming="CharacterEllipsis" />
-                                    <TextBlock Text="{Binding Command}" FontSize="12" TextTrimming="CharacterEllipsis"
+                                    <TextBlock Text="{Binding Command}" FontSize="{StaticResource FontSize.Small}" TextTrimming="CharacterEllipsis"
                                                Foreground="{DynamicResource TextSecondaryBrush}" ToolTip="{Binding Command}" />
-                                    <TextBlock Text="{Binding ProgramText}" Tag="{Binding ProgramText}" Style="{StaticResource CollapsedWhenNull}"
-                                               FontSize="12" Foreground="{DynamicResource AccentTextBrush}" />
+                                    <TextBlock Text="{Binding OwnerText}" Tag="{Binding OwnerText}" Style="{StaticResource CollapsedWhenNull}"
+                                               FontSize="{StaticResource FontSize.Small}" Foreground="{DynamicResource AccentTextBrush}" />
+                                    <!-- Pemilik tidak dikenal (oranye) / berkas tidak ada (merah). -->
+                                    <TextBlock x:Name="Status" Text="{Binding StatusText}" Tag="{Binding StatusText}" Style="{StaticResource CollapsedWhenNull}"
+                                               FontSize="{StaticResource FontSize.Small}" FontWeight="SemiBold" TextWrapping="Wrap"
+                                               Foreground="{DynamicResource WarningTextBrush}" />
                                 </StackPanel>
 
-                                <TextBlock Grid.Column="3" Text="{Binding SourceText}" VerticalAlignment="Center" FontSize="12"
+                                <TextBlock Grid.Column="3" Text="{Binding SourceText}" VerticalAlignment="Center" FontSize="{StaticResource FontSize.Small}"
                                            Foreground="{DynamicResource TextSecondaryBrush}" />
                             </Grid>
+                            <DataTemplate.Triggers>
+                                <DataTrigger Binding="{Binding IsMissing}" Value="True">
+                                    <Setter TargetName="Status" Property="Foreground" Value="{DynamicResource DangerTextBrush}" />
+                                </DataTrigger>
+                            </DataTemplate.Triggers>
                         </DataTemplate>
                     </ListBox.ItemTemplate>
                 </ListBox>

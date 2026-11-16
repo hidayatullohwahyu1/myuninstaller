@@ -273,14 +273,15 @@ public class StartupUiTests
         var repository = new FakeRepository(succeed: true);
         var vm = new StartupViewModel(repository, new NoShell(), () => [App], null, NullLogger.Instance);
 
-        vm.SummaryText.Should().Be("2 program awal · 1 aktif");
+        // Exe uji (D:\Apps\App\tray.exe) tidak ada di disk: rincian masalah diuji di StartupCleanupTests.
+        vm.SummaryText.Should().StartWith("2 program awal · 1 aktif");
         vm.Items[0].ProgramText.Should().Be("Program: Aplikasi Uji");
         vm.Items[1].SourceText.Should().Be("Tugas terjadwal");
 
         vm.Items[0].IsEnabled = false;
 
         repository.Calls.Should().Equal(("Tray", false));
-        vm.SummaryText.Should().Be("2 program awal · 0 aktif");
+        vm.SummaryText.Should().StartWith("2 program awal · 0 aktif");
         vm.NoticeText.Should().Be("\"Tray\" dinonaktifkan; berlaku saat Windows dimulai berikutnya.");
     }
 

@@ -165,6 +165,7 @@ public partial class App : Application
         builder.Services.AddSingleton<InitialScan>();
         builder.Services.AddSingleton<BrowserExtensionService>();
         builder.Services.AddSingleton<PortableProgramService>();
+        builder.Services.AddSingleton<StartupCleanupService>();
         // Lazy<T>: layanan berat dibuat saat pertama dipakai (lihat LazyService).
         builder.Services.AddTransient(typeof(Lazy<>), typeof(LazyService<>));
         builder.Services.AddSingleton<MainViewModel>();

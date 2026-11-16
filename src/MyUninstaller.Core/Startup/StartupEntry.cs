@@ -44,6 +44,12 @@ public sealed record StartupEntry
     /// <summary>Exe yang dijalankan, bila bisa ditentukan.</summary>
     public string? ExecutablePath { get; init; }
 
+    /// <summary>Nama produk dari info versi exe (untuk mengenali pemilik bila path tidak cocok).</summary>
+    public string? ProductName { get; init; }
+
+    /// <summary>Nama perusahaan dari info versi exe.</summary>
+    public string? CompanyName { get; init; }
+
     /// <summary>Kunci unik.</summary>
     public string Id => $"{Source}|{Location}|{ApprovalName}";
 }

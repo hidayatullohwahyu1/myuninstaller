@@ -42,6 +42,7 @@ public sealed partial class MainViewModel : ObservableObject
     private readonly Lazy<BrowserExtensionService> _extensionService;
     private readonly IPortableProgramScanner _portableScanner;
     private readonly Lazy<PortableProgramService> _portableService;
+    private readonly Lazy<StartupCleanupService> _startupCleanup;
     private readonly IWingetClient _winget;
     private readonly ISystemSnapshotter _snapshotter;
     private readonly IInstallTraceStore _traces;
@@ -73,6 +74,7 @@ public sealed partial class MainViewModel : ObservableObject
         Lazy<BrowserExtensionService> extensionService,
         IPortableProgramScanner portableScanner,
         Lazy<PortableProgramService> portableService,
+        Lazy<StartupCleanupService> startupCleanup,
         IWingetClient winget,
         ISystemSnapshotter snapshotter,
         IInstallTraceStore traces,
@@ -96,6 +98,7 @@ public sealed partial class MainViewModel : ObservableObject
         _extensionService = extensionService;
         _portableScanner = portableScanner;
         _portableService = portableService;
+        _startupCleanup = startupCleanup;
         _winget = winget;
         _snapshotter = snapshotter;
         _traces = traces;
@@ -551,8 +554,18 @@ public sealed partial class MainViewModel : ObservableObject
     [RelayCommand]
     private void Startup()
     {
-        var viewModel = new StartupViewModel(_startup, _shell, AllModels, _icons, _logger);
-        new StartupWindow(viewModel) { Owner = System.Windows.Application.Current.MainWindow }.ShowDialog();
+        StartupWindow? window = null;
+        var viewModel = new StartupViewModel(_startup, _shell, AllModels, _icons, _logger,
+            removeEntry: entry => ChoiceDialog.Show(window, Strings.Get("Startup_RemoveEntry"),
+                    Strings.Format("Startup_ConfirmRemove", entry.Name, entry.ExecutablePath ?? entry.Command),
+                [
+                    new ChoiceButton(Strings.Get("Common_Cancel"), ChoiceKind.Primary, IsDefault: true, IsCancel: true),
+                    new ChoiceButton(Strings.Get("Startup_RemoveEntry"), ChoiceKind.Danger),
+                ],
+                glyph: "") == 1
+                && _startupCleanup.Value.RemoveMissing(entry));
+        window = new StartupWindow(viewModel) { Owner = System.Windows.Application.Current.MainWindow };
+        window.ShowDialog();
     }
 
     /// <summary>Jendela "Ekstensi browser" (versi 1.3).</summary>
@@ -583,7 +596,8 @@ public sealed partial class MainViewModel : ObservableObject
             confirm: program => ChoiceDialog.Show(window, Strings.Get("Portable_Remove"),
                 Strings.Format("Portable_Confirm", program.Name, program.Folder,
                     program.SizeBytes is { } size ? IndonesianFormat.Size(size) : "?",
-                    IndonesianFormat.Count(program.Shortcuts.Count)),
+                    IndonesianFormat.Count(program.Shortcuts.Count))
+                    + (program.IsInAppData ? Environment.NewLine + Environment.NewLine + Strings.Get("Portable_ConfirmAppData") : string.Empty),
             [
                 new ChoiceButton(Strings.Get("Common_Cancel"), ChoiceKind.Primary, IsDefault: true, IsCancel: true),
                 new ChoiceButton(Strings.Get("Portable_Remove"), ChoiceKind.Danger),

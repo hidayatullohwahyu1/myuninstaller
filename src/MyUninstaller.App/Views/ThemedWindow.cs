@@ -3,6 +3,7 @@ using System.Windows.Interop;
 using System.Windows.Media;
 using MyUninstaller.App.Interop;
 using MyUninstaller.App.Services;
+using MyUninstaller.Core.Layout;
 
 namespace MyUninstaller.App.Views;
 
@@ -27,23 +28,55 @@ public class ThemedWindow : Window
         // bilah judul gelap. Setelah ukuran dihitung, kunci ukurannya lalu paksa gambar ulang.
         Loaded += (_, _) =>
         {
-            if (SizeToContent == SizeToContent.Manual)
+            if (SizeToContent != SizeToContent.Manual)
             {
-                return;
+                double width = ActualWidth;
+                double height = ActualHeight;
+                SizeToContent = SizeToContent.Manual;
+                Width = width;
+                Height = height;
+                InvalidateVisual();
             }
 
-            double width = ActualWidth;
-            double height = ActualHeight;
-            SizeToContent = SizeToContent.Manual;
-            Width = width;
-            Height = height;
-            InvalidateVisual();
+            FitToWorkArea(this);
         };
         if (ThemeService.Current is { } theme)
         {
             theme.ThemeChanged += OnThemeChanged;
             Closed += (_, _) => theme.ThemeChanged -= OnThemeChanged;
         }
+    }
+
+    /// <summary>
+    /// Seluruh jendela (termasuk tombol di bawah) harus terlihat di atas taskbar. Batas tinggi juga dipasang agar
+    /// jendela tidak bisa ditarik melewati layar.
+    /// </summary>
+    internal static void FitToWorkArea(Window window)
+    {
+        if (window.WindowState != WindowState.Normal || double.IsNaN(window.Left) || double.IsNaN(window.Top))
+        {
+            return;
+        }
+
+        Rect area = SystemParameters.WorkArea;
+        var fitted = WindowFit.Fit(
+            new WindowBounds(window.Left, window.Top, window.ActualWidth, window.ActualHeight),
+            new WindowBounds(area.Left, area.Top, area.Width, area.Height));
+
+        window.MinHeight = Math.Min(window.MinHeight, area.Height);
+        window.MaxHeight = area.Height;
+        if (fitted.Width < window.ActualWidth)
+        {
+            window.Width = fitted.Width;
+        }
+
+        if (fitted.Height < window.ActualHeight)
+        {
+            window.Height = fitted.Height;
+        }
+
+        window.Left = fitted.Left;
+        window.Top = fitted.Top;
     }
 
     private void OnThemeChanged(object? sender, EventArgs e) => ApplyTitleBar();

@@ -1,4 +1,4 @@
-<local:ThemedWindow x:Class="MyUninstaller.App.Views.PortableProgramsWindow"
+﻿<local:ThemedWindow x:Class="MyUninstaller.App.Views.PortableProgramsWindow"
                     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
                     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
@@ -29,7 +29,7 @@
 
     <DockPanel Margin="20,16,20,16">
         <StackPanel DockPanel.Dock="Top" Margin="0,0,0,12">
-            <TextBlock Text="{loc:Tr Portable_Title}" FontFamily="{StaticResource UiDisplayFont}" FontSize="18" FontWeight="SemiBold" />
+            <TextBlock Text="{loc:Tr Portable_Title}" FontFamily="{StaticResource UiDisplayFont}" FontSize="{StaticResource FontSize.Title}" FontWeight="SemiBold" />
             <TextBlock Text="{loc:Tr Portable_Subtitle}" Margin="0,3,0,0" TextWrapping="Wrap" Foreground="{DynamicResource TextSecondaryBrush}" />
         </StackPanel>
 
@@ -94,14 +94,22 @@
                                 <TextBlock Style="{StaticResource GlyphText}" Text="{StaticResource Glyph.Package}" Foreground="{DynamicResource AccentTextBrush}" />
                                 <StackPanel Grid.Column="1">
                                     <TextBlock Text="{Binding Name}" FontWeight="SemiBold" TextTrimming="CharacterEllipsis" />
-                                    <TextBlock Text="{Binding Folder}" FontSize="12" Foreground="{DynamicResource TextSecondaryBrush}" TextTrimming="CharacterEllipsis" />
-                                    <TextBlock Text="{Binding DetailText}" FontSize="12" Foreground="{DynamicResource TextSecondaryBrush}" TextTrimming="CharacterEllipsis" />
+                                    <TextBlock Text="{Binding Folder}" FontSize="{StaticResource FontSize.Small}" Foreground="{DynamicResource TextSecondaryBrush}" TextTrimming="CharacterEllipsis" />
+                                    <TextBlock Text="{Binding DetailText}" FontSize="{StaticResource FontSize.Small}" Foreground="{DynamicResource TextSecondaryBrush}" TextTrimming="CharacterEllipsis" />
                                 </StackPanel>
-                                <Border Grid.Column="2" Style="{StaticResource BadgeBorder}" Background="{DynamicResource BadgeRareBrush}" VerticalAlignment="Center"
-                                        ToolTip="{loc:Tr Badge_Rare_Tooltip}"
-                                        Visibility="{Binding IsRarelyUsed, Converter={StaticResource BoolToVisibility}}">
-                                    <TextBlock Style="{StaticResource BadgeText}" Text="{loc:Tr Badge_Rare}" />
-                                </Border>
+                                <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center">
+                                    <!-- Di AppData: bisa program yang ikut terpasang saat browsing, bisa juga komponen program lain. -->
+                                    <Border Style="{StaticResource BadgeBorder}" Background="{DynamicResource BadgeRareBrush}" Margin="0,0,6,0"
+                                            ToolTip="{loc:Tr Portable_AppDataTooltip}"
+                                            Visibility="{Binding IsInAppData, Converter={StaticResource BoolToVisibility}}">
+                                        <TextBlock Style="{StaticResource BadgeText}" Text="{loc:Tr Portable_AppDataBadge}" />
+                                    </Border>
+                                    <Border Style="{StaticResource BadgeBorder}" Background="{DynamicResource BadgeRareBrush}"
+                                            ToolTip="{loc:Tr Badge_Rare_Tooltip}"
+                                            Visibility="{Binding IsRarelyUsed, Converter={StaticResource BoolToVisibility}}">
+                                        <TextBlock Style="{StaticResource BadgeText}" Text="{loc:Tr Badge_Rare}" />
+                                    </Border>
+                                </StackPanel>
                             </Grid>
                         </DataTemplate>
                     </ListBox.ItemTemplate>

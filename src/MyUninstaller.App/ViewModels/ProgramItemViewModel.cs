@@ -1,8 +1,9 @@
-using System.Windows.Media;
+﻿using System.Windows.Media;
 using CommunityToolkit.Mvvm.ComponentModel;
 using MyUninstaller.App.Localization;
 using MyUninstaller.Core.Formatting;
 using MyUninstaller.Core.Models;
+using MyUninstaller.Core.Safety;
 
 namespace MyUninstaller.App.ViewModels;
 
@@ -11,20 +12,21 @@ public sealed partial class ProgramItemViewModel : ObservableObject
 {
     // Warna ubin pengganti ikon, dipilih tetap berdasarkan nama.
     private static readonly SolidColorBrush[] TileBrushes = CreateTileBrushes(
-        "#2563EB", "#7C3AED", "#DB2777", "#EA580C", "#059669", "#0891B2", "#4F46E5", "#B45309");
+        "#2563EB", "#7C3AED", "#DB2777", "#C2410C", "#047857", "#0E7490", "#4F46E5", "#B45309");
 
     public ProgramItemViewModel(InstalledProgram model, DateOnly today)
     {
         Model = model;
         IsNew = model.IsNew(today);
         IsRarelyUsed = model.IsRarelyUsed(today);
+        Risk = ProgramRiskRules.Classify(model);
         TileBrush = TileBrushes[StableHash(model.DisplayName) % (uint)TileBrushes.Length];
         Initial = model.DisplayName.Trim() is { Length: > 0 } name ? char.ToUpperInvariant(name[0]).ToString() : "?";
     }
 
     /// <summary>Data program; diganti saat ukuran selesai dihitung dari folder.</summary>
     [ObservableProperty]
-    [NotifyPropertyChangedFor(nameof(SizeBytes), nameof(SizeText), nameof(SummaryText))]
+    [NotifyPropertyChangedFor(nameof(SizeBytes), nameof(SizeText), nameof(SummaryText), nameof(ToolTipText))]
     public partial InstalledProgram Model { get; private set; }
 
     /// <summary>Menerapkan ukuran hasil hitung folder (EstimatedSize kosong).</summary>
@@ -74,6 +76,11 @@ public sealed partial class ProgramItemViewModel : ObservableObject
 
     public string InstallDateText => Model.InstallDate is { } date ? IndonesianFormat.Date(date) : string.Empty;
 
+    /// <summary>Tooltip ubin/baris: nama LENGKAP (nama panjang terpotong di kisi) + ringkasan.</summary>
+    public string ToolTipText => IsRisky
+        ? DisplayName + Environment.NewLine + SummaryText + Environment.NewLine + AssessmentText
+        : DisplayName + Environment.NewLine + SummaryText;
+
     /// <summary>Contoh: "Google LLC · 412 MB · dipasang 2 September 2026".</summary>
     public string SummaryText
     {
@@ -102,6 +109,20 @@ public sealed partial class ProgramItemViewModel : ObservableObject
     public bool HasWebsite => !string.IsNullOrWhiteSpace(Model.WebsiteUrl);
 
     public bool IsNew { get; }
+
+    /// <summary>
+    /// Penilaian yang BISA dibuktikan (aturan PRD): driver, runtime bersama, komponen sistem. Aplikasi tidak menebak
+    /// "berguna/tidak berguna" tanpa bukti; bukti pemakaian ditampilkan terpisah (JARANG, terakhir dipakai).
+    /// </summary>
+    public ProgramRisk Risk { get; }
+
+    public bool IsRisky => Risk != ProgramRisk.None;
+
+    /// <summary>Lencana singkat: DRIVER / RUNTIME / SISTEM.</summary>
+    public string? RiskBadgeText => IsRisky ? Strings.Get("Badge_Risk_" + Risk) : null;
+
+    /// <summary>Kalimat penilaian di panel info dan tooltip lencana (selalu ada, juga untuk program biasa).</summary>
+    public string AssessmentText => Strings.Get("Assess_" + Risk);
 
     /// <summary>Label JARANG: terakhir dipakai 90 hari lalu atau lebih (hanya bila ada bukti pemakaian).</summary>
     [ObservableProperty]

@@ -68,7 +68,27 @@ public sealed class StartupRepository(StartupLocations locations, IClock clock, 
         }
 
         Safe("tugas terjadwal", () => ReadTasks(entries));
-        return [.. entries.OrderBy(e => e.Name, StringComparer.CurrentCultureIgnoreCase)];
+        return [.. entries.Select(WithVersionInfo).OrderBy(e => e.Name, StringComparer.CurrentCultureIgnoreCase)];
+    }
+
+    /// <summary>Nama produk/perusahaan dari info versi exe (hanya baca) untuk mengenali pemilik.</summary>
+    private static StartupEntry WithVersionInfo(StartupEntry entry)
+    {
+        if (entry.ExecutablePath is not { } exe || !File.Exists(exe))
+        {
+            return entry;
+        }
+
+        try
+        {
+            var info = FileVersionInfo.GetVersionInfo(exe);
+            string? product = string.IsNullOrWhiteSpace(info.ProductName) ? info.FileDescription : info.ProductName;
+            return entry with { ProductName = product?.Trim(), CompanyName = info.CompanyName?.Trim() };
+        }
+        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException or ArgumentException)
+        {
+            return entry;
+        }
     }
 
     public bool SetEnabled(StartupEntry entry, bool enabled)

@@ -1,4 +1,4 @@
-<local:ThemedWindow x:Class="MyUninstaller.App.Views.UninstallModeDialog"
+﻿<local:ThemedWindow x:Class="MyUninstaller.App.Views.UninstallModeDialog"
                     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
                     xmlns:local="clr-namespace:MyUninstaller.App.Views"
@@ -17,13 +17,13 @@
         <!-- Mode senyap (versi 1.1): bawaan dicentang untuk uninstall massal. -->
         <StackPanel DockPanel.Dock="Bottom" Margin="2,10,0,0">
             <CheckBox x:Name="SilentCheck" x:FieldModifier="public" Style="{StaticResource ThemedCheckBox}" />
-            <TextBlock x:Name="SilentHint" x:FieldModifier="public" Margin="26,2,0,0" FontSize="12" TextWrapping="Wrap"
+            <TextBlock x:Name="SilentHint" x:FieldModifier="public" Margin="26,2,0,0" FontSize="{StaticResource FontSize.Small}" TextWrapping="Wrap"
                        Foreground="{DynamicResource TextSecondaryBrush}" />
         </StackPanel>
 
         <StackPanel DockPanel.Dock="Top" Margin="0,0,0,14">
-            <TextBlock x:Name="HeaderText" FontFamily="{StaticResource UiDisplayFont}" FontSize="18" FontWeight="SemiBold"
-                       TextTrimming="CharacterEllipsis" />
+            <TextBlock x:Name="HeaderText" FontFamily="{StaticResource UiDisplayFont}" FontSize="{StaticResource FontSize.Title}" FontWeight="SemiBold"
+                       TextWrapping="Wrap" />
             <TextBlock Text="{loc:Tr Mode_HeaderHint}" Margin="0,4,0,0" Foreground="{DynamicResource TextSecondaryBrush}" />
         </StackPanel>
 
@@ -36,14 +36,14 @@
                          Tag="{loc:Tr Mode_Normal_Desc}">
                 <TextBlock>
                     <Run Text="{loc:Tr Mode_Normal}" /><Run Text="  " /><Run Text="{loc:Tr Mode_RecommendedTag}" FontWeight="Normal"
-                         FontSize="12" Foreground="{DynamicResource AccentTextBrush}" />
+                         FontSize="{StaticResource FontSize.Small}" Foreground="{DynamicResource AccentTextBrush}" />
                 </TextBlock>
             </RadioButton>
             <RadioButton x:Name="SuperOption" Style="{StaticResource ModeOption}" GroupName="Mode"
                          Content="{loc:Tr Mode_Super}" Tag="{loc:Tr Mode_Super_Desc}" />
             <RadioButton x:Name="ForceOption" Style="{StaticResource ModeOption}" GroupName="Mode"
                          Tag="{loc:Tr Mode_Force_Desc}">
-                <TextBlock Text="{loc:Tr Mode_Force}" Foreground="{DynamicResource DangerBrush}" />
+                <TextBlock Text="{loc:Tr Mode_Force}" Foreground="{DynamicResource DangerTextBrush}" />
             </RadioButton>
         </StackPanel>
     </DockPanel>

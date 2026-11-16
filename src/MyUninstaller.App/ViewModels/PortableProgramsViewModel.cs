@@ -1,4 +1,4 @@
-using System.Collections.ObjectModel;
+﻿using System.Collections.ObjectModel;
 using System.IO;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
@@ -19,6 +19,8 @@ public sealed class PortableProgramItemViewModel(PortableProgram program, DateOn
     public string Name => Program.Name;
 
     public string Folder => Program.Folder;
+
+    public bool IsInAppData => Program.IsInAppData;
 
     public string DetailText => string.Join(" · ", new[]
     {

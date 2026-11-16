@@ -15,11 +15,11 @@ public sealed class VirtualizingTilePanel : VirtualizingPanel, IScrollInfo
 {
     public static readonly DependencyProperty ItemWidthProperty = DependencyProperty.Register(
         nameof(ItemWidth), typeof(double), typeof(VirtualizingTilePanel),
-        new FrameworkPropertyMetadata(118d, FrameworkPropertyMetadataOptions.AffectsMeasure));
+        new FrameworkPropertyMetadata(130d, FrameworkPropertyMetadataOptions.AffectsMeasure));
 
     public static readonly DependencyProperty ItemHeightProperty = DependencyProperty.Register(
         nameof(ItemHeight), typeof(double), typeof(VirtualizingTilePanel),
-        new FrameworkPropertyMetadata(114d, FrameworkPropertyMetadataOptions.AffectsMeasure));
+        new FrameworkPropertyMetadata(132d, FrameworkPropertyMetadataOptions.AffectsMeasure));
 
     private const double WheelStep = 3 * 38;
 

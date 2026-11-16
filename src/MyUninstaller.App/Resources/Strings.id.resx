@@ -300,6 +300,14 @@
   <data name="Risk_Driver" xml:space="preserve"><value>driver perangkat keras</value></data>
   <data name="Risk_SharedRuntime" xml:space="preserve"><value>runtime bersama</value></data>
   <data name="Risk_SystemComponent" xml:space="preserve"><value>komponen sistem Windows</value></data>
+  <data name="Badge_Risk_Driver" xml:space="preserve"><value>DRIVER</value></data>
+  <data name="Badge_Risk_SharedRuntime" xml:space="preserve"><value>RUNTIME</value></data>
+  <data name="Badge_Risk_SystemComponent" xml:space="preserve"><value>SISTEM</value></data>
+  <data name="Assess_Label" xml:space="preserve"><value>Penilaian:</value></data>
+  <data name="Assess_Driver" xml:space="preserve"><value>Driver perangkat keras. Menghapusnya bisa membuat perangkat terkait (touchpad, printer, kartu grafis, USB) berhenti bekerja. Hapus hanya bila perangkatnya sudah tidak dipakai.</value></data>
+  <data name="Assess_SharedRuntime" xml:space="preserve"><value>Runtime bersama. Program lain bisa bergantung padanya walau tidak terlihat. Biarkan terpasang kecuali yakin tidak ada yang memakainya.</value></data>
+  <data name="Assess_SystemComponent" xml:space="preserve"><value>Komponen sistem Windows. Jangan dihapus kecuali tahu fungsinya.</value></data>
+  <data name="Assess_None" xml:space="preserve"><value>Tidak dikenali sebagai driver, runtime bersama, atau komponen sistem. Boleh dihapus bila programnya tidak dipakai lagi.</value></data>
   <data name="Risk_Continue" xml:space="preserve"><value>Tetap hapus</value></data>
   <data name="Risk_Skip" xml:space="preserve"><value>Lewati yang berisiko</value></data>
 
@@ -307,6 +315,19 @@
   <data name="Startup_Title" xml:space="preserve"><value>Program awal</value></data>
   <data name="Startup_Subtitle" xml:space="preserve"><value>Program yang berjalan otomatis saat Windows dimulai. Menonaktifkan tidak menghapus apa pun dan bisa diaktifkan lagi kapan saja.</value></data>
   <data name="Startup_Summary" xml:space="preserve"><value>{0} program awal · {1} aktif</value></data>
+  <data name="Startup_SummaryIssues" xml:space="preserve"><value> · {0} tanpa pemilik · {1} berkas hilang</value></data>
+  <data name="Startup_StatusUnknown" xml:space="preserve"><value>Tidak tercatat sebagai program terpasang. Periksa apakah program ini memang dibutuhkan.</value></data>
+  <data name="Startup_StatusUnknownAppData" xml:space="preserve"><value>Tidak tercatat sebagai program terpasang dan berjalan dari AppData, lokasi khas program yang ikut terpasang tanpa disadari. Periksa sebelum mengaktifkan.</value></data>
+  <data name="Startup_StatusMissing" xml:space="preserve"><value>Berkasnya sudah tidak ada. Entri ini sisa program yang sudah terhapus dan bisa dibuang.</value></data>
+  <data name="Startup_StatusWindows" xml:space="preserve"><value>Bagian dari Windows</value></data>
+  <data name="Startup_RemoveEntry" xml:space="preserve"><value>Buang entri</value></data>
+  <data name="Startup_ConfirmRemove" xml:space="preserve"><value>Buang program awal "{0}"? Berkas yang dijalankannya sudah tidak ada:
+{1}
+
+Entri dicadangkan dulu dan bisa dikembalikan dari Riwayat.</value></data>
+  <data name="Startup_Removed" xml:space="preserve"><value>Program awal "{0}" dibuang.</value></data>
+  <data name="Startup_SessionTitle" xml:space="preserve"><value>Program awal: {0}</value></data>
+  <data name="SessionMode_Startup" xml:space="preserve"><value>Program awal</value></data>
   <data name="Startup_Empty" xml:space="preserve"><value>Tidak ada program awal.</value></data>
   <data name="Startup_Enabled" xml:space="preserve"><value>Aktif</value></data>
   <data name="Startup_Disabled" xml:space="preserve"><value>Nonaktif</value></data>
@@ -351,7 +372,10 @@
   <data name="Nav_Portable" xml:space="preserve"><value>Program portable</value></data>
   <data name="Tooltip_Portable" xml:space="preserve"><value>Cari dan hapus program tanpa installer (folder yang disalin atau diekstrak)</value></data>
   <data name="Portable_Title" xml:space="preserve"><value>Program portable</value></data>
-  <data name="Portable_Subtitle" xml:space="preserve"><value>Folder berisi program yang tidak tercatat di Windows, dicari di Desktop, Unduhan, Dokumen, dan akar setiap drive. Folder milik program terpasang, proyek pengembangan, dan komponen Microsoft tidak ditampilkan. Folder yang dihapus dipindah ke karantina dan bisa dipulihkan dari Riwayat.</value></data>
+  <data name="Portable_Subtitle" xml:space="preserve"><value>Folder berisi program yang tidak tercatat di Windows, dicari di Desktop, Unduhan, Dokumen, AppData, dan akar setiap drive. Temuan di AppData ditandai PERIKSA: sering program yang ikut terpasang saat browsing, tetapi bisa juga komponen program lain. Folder milik program terpasang, proyek pengembangan, dan komponen Microsoft tidak ditampilkan. Folder yang dihapus dipindah ke karantina dan bisa dipulihkan dari Riwayat.</value></data>
+  <data name="Portable_AppDataBadge" xml:space="preserve"><value>PERIKSA</value></data>
+  <data name="Portable_AppDataTooltip" xml:space="preserve"><value>Ditemukan di AppData tanpa entri program terpasang. Bisa program yang ikut terpasang saat browsing, bisa juga komponen program lain. Periksa foldernya dulu.</value></data>
+  <data name="Portable_ConfirmAppData" xml:space="preserve"><value>Folder ini ada di AppData. Pastikan bukan bagian dari program lain yang masih dipakai (misalnya SDK, pembaru, atau plugin). Bila ragu, buka foldernya dulu.</value></data>
   <data name="Portable_Scan" xml:space="preserve"><value>Pindai ulang (F5)</value></data>
   <data name="Portable_ScanFolder" xml:space="preserve"><value>Pindai folder lain</value></data>
   <data name="Portable_Stop" xml:space="preserve"><value>Hentikan</value></data>

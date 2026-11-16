@@ -1,4 +1,4 @@
-using System.Diagnostics;
+﻿using System.Diagnostics;
 using Microsoft.Extensions.Logging;
 using MyUninstaller.Core.Abstractions;
 using MyUninstaller.Core.Models;
@@ -19,7 +19,8 @@ public sealed class PortableProgramScanner(
     ProtectedPaths protectedPaths,
     ILogger<PortableProgramScanner> logger,
     IReadOnlyList<string>? shortcutFolders = null,
-    IReadOnlyList<string>? defaultRoots = null) : IPortableProgramScanner
+    IReadOnlyList<string>? defaultRoots = null,
+    IReadOnlyList<string>? appDataRoots = null) : IPortableProgramScanner
 {
     private static readonly EnumerationOptions FolderOptions = new()
     {
@@ -35,6 +36,20 @@ public sealed class PortableProgramScanner(
 
     public IReadOnlyList<string> DefaultRoots { get; } = defaultRoots ?? CurrentSystemRoots();
 
+    /// <summary>AppData Roaming dan Local: temuan di sini ditandai "periksa dulu".</summary>
+    private readonly IReadOnlyList<string> _appDataRoots = appDataRoots ??
+    [
+        Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
+        Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
+    ];
+
+    // Anak AppData yang bukan program per-pengguna (atau sudah dipindai sebagai akar sendiri).
+    private static readonly HashSet<string> AppDataSkipped = new(StringComparer.OrdinalIgnoreCase)
+    {
+        "Programs", "Microsoft", "Packages", "Temp", "CrashDumps", "D3DSCache", "NVIDIA", "Comms", "ConnectedDevicesPlatform",
+        "pip", "npm", "npm-cache", "Yarn", "NuGet", "Package Cache", "PeerDistRepub", "Publishers", "IsolatedStorage",
+    };
+
     private static IReadOnlyList<string> CurrentSystemRoots()
     {
         string profile = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
@@ -44,6 +59,10 @@ public sealed class PortableProgramScanner(
             Path.Combine(profile, "Downloads"),
             Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments),
             Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "Programs"),
+
+            // Program yang ikut terpasang saat browsing biasanya di sini (tanpa entri Uninstall).
+            Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
+            Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
         };
 
         try
@@ -69,12 +88,15 @@ public sealed class PortableProgramScanner(
     public IReadOnlyList<PortableProgram> Scan(IReadOnlyList<string> roots, IReadOnlyList<InstalledProgram> installed, CancellationToken cancellationToken)
     {
         var owned = PortableRules.OwnedFolders(installed);
-        var found = new Dictionary<string, (string Folder, ExecutableInfo Main)>(StringComparer.OrdinalIgnoreCase);
+        var found = new Dictionary<string, (string Folder, ExecutableInfo Main, bool InAppData)>(StringComparer.OrdinalIgnoreCase);
         int visited = 0;
         var clock = Stopwatch.StartNew();
+        string? appDataRoot = null;
 
         foreach (string root in roots.Where(Directory.Exists))
         {
+            string full = Path.TrimEndingDirectorySeparator(Path.GetFullPath(root));
+            appDataRoot = _appDataRoots.FirstOrDefault(a => Path.TrimEndingDirectorySeparator(a).Equals(full, StringComparison.OrdinalIgnoreCase)) is null ? null : full;
             Visit(root, 0);
         }
 
@@ -97,7 +119,7 @@ public sealed class PortableProgramScanner(
         }
 
         var result = new List<PortableProgram>();
-        foreach (var (folder, main) in found.Values)
+        foreach (var (folder, main, inAppData) in found.Values)
         {
             cancellationToken.ThrowIfCancellationRequested();
             string prefix = folder + Path.DirectorySeparatorChar;
@@ -106,6 +128,7 @@ public sealed class PortableProgramScanner(
                 Name = PortableRules.DisplayName(Path.GetFileName(folder), main),
                 Folder = folder,
                 MainExecutable = main.Path,
+                IsInAppData = inAppData,
                 Publisher = string.IsNullOrWhiteSpace(main.Company) ? null : main.Company.Trim(),
                 Version = string.IsNullOrWhiteSpace(main.Version) ? null : main.Version.Trim(),
                 SizeBytes = sizes.Measure(folder, cancellationToken),
@@ -139,14 +162,16 @@ public sealed class PortableProgramScanner(
                     return;
                 }
 
-                if (depth >= PortableRules.MaxDepth)
+                // AppData sangat besar (cache browser, dsb.); program per-pengguna ada di <AppData>\nama\versi.
+                if (depth >= (appDataRoot is null ? PortableRules.MaxDepth : PortableRules.MaxAppDataDepth))
                 {
                     return;
                 }
 
                 foreach (string sub in Directory.EnumerateDirectories(folder, "*", FolderOptions))
                 {
-                    if (!PortableRules.IsSkippedFolderName(Path.GetFileName(sub)))
+                    string subName = Path.GetFileName(sub);
+                    if (!PortableRules.IsSkippedFolderName(subName) && !(depth == 0 && appDataRoot is not null && AppDataSkipped.Contains(subName)))
                     {
                         Visit(sub, depth + 1);
                     }
@@ -158,7 +183,7 @@ public sealed class PortableProgramScanner(
             }
         }
 
-        (string Folder, ExecutableInfo Main)? TryCandidate(string folder, IReadOnlyList<string> names)
+        (string Folder, ExecutableInfo Main, bool InAppData)? TryCandidate(string folder, IReadOnlyList<string> names)
         {
             if (!names.Any(n => n.EndsWith(".exe", StringComparison.OrdinalIgnoreCase)))
             {
@@ -184,15 +209,19 @@ public sealed class PortableProgramScanner(
                 return null;
             }
 
+            // Di AppData: nama folder tingkat teratas (Roaming\<nama>\...) ikut dicocokkan dengan program terpasang.
+            string? topName = appDataRoot is null ? null
+                : Path.GetRelativePath(appDataRoot, programFolder).Split(Path.DirectorySeparatorChar)[0];
+
             var main = PortableRules.ChooseMainExecutable(programName, exes);
             if (main is null || PortableRules.IsMicrosoft(main) || PortableRules.IsOwned(programFolder, owned)
-                || PortableRules.MatchesInstalledProgram(programName, main, installed)
+                || PortableRules.MatchesInstalledProgram(programName, main, installed, topName)
                 || protectedPaths.IsProtected(programFolder))
             {
                 return null;
             }
 
-            return (programFolder, main);
+            return (programFolder, main, appDataRoot is not null);
         }
     }
 
